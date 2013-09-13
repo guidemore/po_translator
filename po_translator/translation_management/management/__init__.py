@@ -15,7 +15,7 @@ def view_creation(sender, **kwargs):
                                   msgid,
                                   potr_set_message.lang_id as lang_id,
                                   Max(message_set_id) as message_set_id,
-                                  potr_set.project_id_id as project_id
+                                  potr_set.project_id as project_id
                              FROM potr_set_message
                              JOIN potr_set
                                ON potr_set.id=potr_set_message.message_set_id

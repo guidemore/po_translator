@@ -1,9 +1,9 @@
 import os
 # Django settings for po_translator project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-DIRNAME = os.path.normpath(os.path.dirname(__file__))
+BASE_DIR = os.path.normpath(os.path.dirname(__file__))
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -14,7 +14,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'po_translator.sql',            # Or path to database file if using sqlite3.
+        'NAME': 'po_translator.sqlite',            # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -74,7 +74,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = os.path.join(DIRNAME, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
@@ -134,7 +134,7 @@ ROOT_URLCONF = 'po_translator.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'po_translator.wsgi.application'
 TEMPLATE_DIRS = (
-    os.path.join(DIRNAME, 'translation_management/templates'),
+    os.path.join(BASE_DIR, 'translation_management/templates'),
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.

@@ -5,7 +5,7 @@
 
 local_settings.py
 po_translator/static/
-*.sql
+*.sqlite
 
 .idea
 .project

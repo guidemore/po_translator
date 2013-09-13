@@ -3,26 +3,27 @@ from guardian.admin import GuardedModelAdmin
 from . import models
 
 
-class PotrImportAdmin(GuardedModelAdmin):
+class ImportAdmin(GuardedModelAdmin):
     pass
 
 
-class PotrImportMessageAdmin(GuardedModelAdmin):
+class ImportMessageAdmin(GuardedModelAdmin):
     pass
 
 
-class PotrSetAdmin(GuardedModelAdmin):
-    list_display = ('project_id', 'name', 'created_at')
+class SetAdmin(GuardedModelAdmin):
+    list_display = ('project', 'name', 'created_at')
 
 
-class PotrSetListAdmin(GuardedModelAdmin):
+class SetListAdmin(GuardedModelAdmin):
     list_display = ('message_set', 'msgid', 'msgstr')
 
 
-class PotrSetMessageAdmin(GuardedModelAdmin):
+class SetMessageAdmin(GuardedModelAdmin):
     pass
 
-class PotrProjectAdmin(GuardedModelAdmin):
+
+class ProjectAdmin(GuardedModelAdmin):
     pass
 
 
@@ -34,16 +35,16 @@ class LanguageAdmin(GuardedModelAdmin):
     pass
 
 
-class PotrProjectLanguageAdmin(GuardedModelAdmin):
+class ProjectLanguageAdmin(GuardedModelAdmin):
     pass
 
 
 admin.site.register(models.Language, LanguageAdmin)
-admin.site.register(models.PotrImport, PotrImportAdmin)
-admin.site.register(models.PotrImportMessage, PotrImportMessageAdmin)
-admin.site.register(models.PotrProject, PotrProjectAdmin)
-admin.site.register(models.PotrSet, PotrSetAdmin)
-admin.site.register(models.PotrSetList, PotrSetListAdmin)
-admin.site.register(models.PotrSetMessage, PotrSetMessageAdmin)
+admin.site.register(models.Import, ImportAdmin)
+admin.site.register(models.ImportMessage, ImportMessageAdmin)
+admin.site.register(models.Project, ProjectAdmin)
+admin.site.register(models.Set, SetAdmin)
+admin.site.register(models.SetList, SetListAdmin)
+admin.site.register(models.SetMessage, SetMessageAdmin)
 admin.site.register(models.ProjectType, ProjectTypeAdmin)
-admin.site.register(models.PotrProjectLanguage, PotrProjectLanguageAdmin)
+admin.site.register(models.ProjectLanguage, ProjectLanguageAdmin)

@@ -18,8 +18,8 @@ from po_translator.translation_management.data_processors import (po, csv_file,
                                                                   android_xml)
 
 
-from .models import (Language, PotrProject, PotrSet, PotrSetMessage,
-                    PotrSetList, PotrProjectLanguage)
+from .models import (Language, Project, Set, SetMessage,
+                    SetList, ProjectLanguage)
 from .utils import (get_message_list, import_po_file, save_same,
                    save_same_target, save_new, show_prev, delete_last,
                    get_all_permissions, user_has_perm, get_sections_info)
@@ -49,7 +49,7 @@ def project(request, project, lang_id=None):
     if request.method == 'POST':
         create_new_set(request, project)
 
-    project_language = Language.objects.get(potrproject=project)
+    project_language = Language.objects.get(project=project)
     if not lang_id:
         return redirect('project', project_id=project.id, lang_id=project_language.id)
 
@@ -88,9 +88,7 @@ def project(request, project, lang_id=None):
     sections, sub_sections = get_sections_info(project.id,
                                                lang_id,
                                                section_filters=section_filters)
-    alterlangs = Language.objects.filter(
-                                        potrprojectlanguage__project_id=project
-                                        ).exclude(id=int(lang_id))
+    alterlangs = Language.objects.filter(projectlanguage__project_id=project).exclude(id=int(lang_id))
     context = {'translation': True,
                'message_list': messages,
                'sections': sections,
@@ -156,12 +154,12 @@ def import_po_file_as_set(request, project, languages):
 @project_aware
 def add_target_language(request, project):
     user = User.objects.get(id=request.user.pk)
-    if not user.has_perm('can_add_potrprojectlanguage'):
+    if not user.has_perm('can_add_projectlanguage'):
         django_messages.error(request, _("You can't add project language"))
         return redirect('home')
 
-    if PotrSetMessage.objects.filter(message_set__project_id=project).exists():
-        languages = Language.objects.exclude(potrprojectlanguage__project_id=project)
+    if SetMessage.objects.filter(message_set__project_id=project).exists():
+        languages = Language.objects.exclude(projectlanguage__project_id=project)
     else:
         proj_lang = project.lang.id
         languages = Language.objects.filter(id=proj_lang)
@@ -175,7 +173,7 @@ def add_target_language(request, project):
 
 def create_new_set(request, project):
     user = User.objects.get(id=request.user.pk)
-    if not user.has_perm('can_add_potrprojectlanguage'):
+    if not user.has_perm('can_add_projectlanguage'):
         django_messages.error(request, _("You can't add project language"))
         return redirect('home')
 
@@ -201,7 +199,7 @@ def export(request, project, lang_id=None):
         lang_id = int(request.POST['lang'])
 
     cur_proj = project.id
-    if (lang_id and PotrProjectLanguage.objects
+    if (lang_id and ProjectLanguage.objects
                                        .filter(lang=lang_id,
                                                project_id=cur_proj).exists()):
 
@@ -230,19 +228,19 @@ def admin_potr(request):
 def views_sets(request, project):
     user = User.objects.get(id=request.user.pk)
     can_delete = False
-    if user.has_perm('can_add_potrprojectlanguage'):
+    if user.has_perm('can_add_projectlanguage'):
         can_delete = True
     if request.method == 'POST' and can_delete:
         delete_last(project.id)
         return redirect('views_sets', project_id=project.id)
     sets = []
-    all_set = PotrSet.objects.filter(project_id=project.id)
+    all_set = Set.objects.filter(project=project.id)
     for cur_set in all_set:
         sets.append({
             'message_set': cur_set.id,
             'name': cur_set.name,
             'created_at': cur_set.created_at,
-            'len': PotrSetList.objects.filter(message_set=cur_set.id).count()})
+            'len': SetList.objects.filter(message_set=cur_set.id).count()})
     return {'sets': sets,
             'can_delete': can_delete,
             'show_sets': True}
@@ -252,7 +250,7 @@ def views_sets(request, project):
 @project_aware
 def views_languages(request, project):
     sets = []
-    all_lang = PotrProjectLanguage.objects.filter(project_id=project.id)
+    all_lang = ProjectLanguage.objects.filter(project_id=project.id)
     for cur_set in all_lang:
         sets.append({
             'name': cur_set.lang.name,
@@ -267,7 +265,7 @@ def add_project(request):
         form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
             cur_lang = form.cleaned_data['lang']
-            project = PotrProject.objects.create(
+            project = Project.objects.create(
                 name=form.cleaned_data['name'],
                 project_type=form.cleaned_data['project_type'],
                 lang=cur_lang)
@@ -289,7 +287,7 @@ def logout(request):
 def views_permissions(request, project):
     user = User.objects.get(id=request.user.pk)
     can_add = False
-    if user.has_perm('can_add_potrprojectlanguage'):
+    if user.has_perm('can_add_projectlanguage'):
         can_add = True
     if request.method == 'POST' and can_add:
         form = AddPermission(request.POST)
@@ -298,7 +296,7 @@ def views_permissions(request, project):
             lang_id = form.cleaned_data['lang']
             lang = Language.objects.get(id=lang_id)
             user = User.objects.get(id=user_id)
-            project_language = PotrProjectLanguage.objects.get(
+            project_language = ProjectLanguage.objects.get(
                                                    project_id=project.id,
                                                    lang=lang)
             assign_perm('can_edit', user, project_language)
@@ -322,7 +320,7 @@ def get_subsection(request, project, lang_id):
         url = "".join([url, '?', urllib.urlencode(request_key)])
         return redirect(url)
 
-    project_language = Language.objects.get(potrproject=project)
+    project_language = Language.objects.get(project=project)
     lang_id = lang_id or project_language.id
     section_filters = {}
     if 'cur_section' in request.GET:

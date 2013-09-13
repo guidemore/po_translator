@@ -2,7 +2,7 @@ import functools
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 
-from .models import PotrProject, PotrProjectLanguage
+from .models import Project, ProjectLanguage
 import json
 from django.http import HttpResponse
 
@@ -21,10 +21,10 @@ def render_to_html(template_name):
 def project_aware(func):
     @functools.wraps(func)
     def wrapped(request, project_id, *atgs, **kwargs):
-        project = PotrProject.objects.get(id=project_id)
+        project = Project.objects.get(id=project_id)
         result = func(request, project, *atgs, **kwargs)
         if isinstance(result, dict):
-            languages = PotrProjectLanguage.objects.filter(project_id=project)
+            languages = ProjectLanguage.objects.filter(project=project)
             result.update({'project_id': project_id,
                            'cur_proj_name': project.name,
                            'languages': languages})

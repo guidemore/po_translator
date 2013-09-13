@@ -1,7 +1,7 @@
 from django import forms
-from models import (ProjectType, Language, PotrProject, PotrSet, PotrSetMessage,
-                    PotrSetList, PotrImport, PotrImportMessage, PoFiles,
-                    PotrProjectLanguage)
+from models import (ProjectType, Language, Project, Set, SetMessage,
+                    SetList, Import, ImportMessage, PoFiles,
+                    ProjectLanguage)
 from django.utils.translation import ugettext_lazy as _
 
 from po_translator.translation_management import data_processors
@@ -19,7 +19,7 @@ class PoFileForm(forms.Form):
         cleaned_data = super(PoFileForm, self).clean()
         lang_id = cleaned_data.get('lang')
         project_id = int(cleaned_data.get('proj'))
-        proj = PotrProject.objects.get(id=project_id)
+        proj = Project.objects.get(id=project_id)
         if lang_id and project_id:
             lang_id = lang_id.id
 
@@ -37,14 +37,14 @@ class PoFileForm(forms.Form):
 
             cleaned_data['pofile'] = pofile
 
-            proj_lang = PotrProject.objects.get(id=project_id).lang
-            if lang_id in [x['lang'] for x in PotrProjectLanguage.objects.filter(project_id=project_id).values('lang').exclude(lang=proj_lang)]:
+            proj_lang = Project.objects.get(id=project_id).lang
+            if lang_id in [x['lang'] for x in ProjectLanguage.objects.filter(project_id=project_id).values('lang').exclude(lang=proj_lang)]:
                 raise forms.ValidationError(_('File with messages for this language already exist'))
 
             if lang_id == proj.lang_id:
-                last_set = PotrSet.objects.filter(project_id=project_id).order_by('-id')
+                last_set = Set.objects.filter(project=project_id).order_by('-id')
                 last_set = next(iter(last_set), None)
-                all_messages = last_set and PotrSetList.objects.filter(message_set=last_set) or []
+                all_messages = last_set and SetList.objects.filter(message_set=last_set) or []
                 if set(i.msgid for i in all_messages) == set(i['msgid'] for i in translations_data):
                     raise forms.ValidationError(_('File with messages was not changed'))
             for entry in translations_data:
@@ -57,7 +57,7 @@ class PoFileForm(forms.Form):
 
     def clean_proj(self):
         proj = int(self.cleaned_data['proj'])
-        if len(PotrProject.objects.filter(id=proj)):
+        if len(Project.objects.filter(id=proj)):
             return proj
         else:
             raise forms.ValidationError(_('Project does not exist'))

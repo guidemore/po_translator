@@ -1,10 +1,10 @@
-from models import (ProjectType, Language, PotrProject, PotrSet, PotrSetMessage,
-                    PotrSetList, PotrImport, PotrImportMessage, PoFiles,
-                    PotrProjectLanguage)
+from models import (ProjectType, Language, Project, Set, SetMessage,
+                    SetList, Import, ImportMessage, PoFiles,
+                    ProjectLanguage)
 
 
 def common_data(request):
-    projects = PotrProject.objects.all()
+    projects = Project.objects.all()
 
     if request.user.is_authenticated():
         user_name = '%s %s' % (request.user.first_name, request.user.last_name)

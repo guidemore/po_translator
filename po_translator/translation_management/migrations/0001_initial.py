@@ -23,7 +23,7 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'translation_management', ['Language'])
 
-        # Adding model 'PotrProject'
+        # Adding model 'Project'
         db.create_table('potr_project', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=40)),
@@ -31,30 +31,30 @@ class Migration(SchemaMigration):
             ('project_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.ProjectType'])),
             ('lang', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.Language'])),
         ))
-        db.send_create_signal(u'translation_management', ['PotrProject'])
+        db.send_create_signal(u'translation_management', ['Project'])
 
-        # Adding model 'PotrProjectLanguage'
+        # Adding model 'ProjectLanguage'
         db.create_table('potr_project_lang', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('lang', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.Language'])),
-            ('project_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.PotrProject'])),
+            ('project', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.Project'])),
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
-        db.send_create_signal(u'translation_management', ['PotrProjectLanguage'])
+        db.send_create_signal(u'translation_management', ['ProjectLanguage'])
 
-        # Adding model 'PotrSet'
+        # Adding model 'Set'
         db.create_table('potr_set', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('project_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.PotrProject'])),
+            ('project', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.Project'])),
             ('name', self.gf('django.db.models.fields.CharField')(max_length=40)),
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
-        db.send_create_signal(u'translation_management', ['PotrSet'])
+        db.send_create_signal(u'translation_management', ['Set'])
 
-        # Adding model 'PotrSetMessage'
+        # Adding model 'SetMessage'
         db.create_table('potr_set_message', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('message_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.PotrSet'])),
+            ('message_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.Set'])),
             ('lang', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.Language'])),
             ('msgid', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('msgstr', self.gf('django.db.models.fields.CharField')(max_length=4000)),
@@ -62,37 +62,37 @@ class Migration(SchemaMigration):
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('updated_at', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
-        db.send_create_signal(u'translation_management', ['PotrSetMessage'])
+        db.send_create_signal(u'translation_management', ['SetMessage'])
 
-        # Adding unique constraint on 'PotrSetMessage', fields ['msgid', 'message_set', 'lang']
+        # Adding unique constraint on 'SetMessage', fields ['msgid', 'message_set', 'lang']
         db.create_unique('potr_set_message', ['msgid', 'message_set_id', 'lang_id'])
 
-        # Adding model 'PotrSetList'
+        # Adding model 'SetList'
         db.create_table('potr_set_list', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('message_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.PotrSet'])),
+            ('message_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.Set'])),
             ('msgid', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('msgstr', self.gf('django.db.models.fields.CharField')(max_length=4000)),
         ))
-        db.send_create_signal(u'translation_management', ['PotrSetList'])
+        db.send_create_signal(u'translation_management', ['SetList'])
 
-        # Adding model 'PotrImport'
+        # Adding model 'Import'
         db.create_table('potr_import', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('message_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.PotrSet'])),
+            ('message_set', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.Set'])),
             ('lang', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.Language'])),
             ('created_at', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
         ))
-        db.send_create_signal(u'translation_management', ['PotrImport'])
+        db.send_create_signal(u'translation_management', ['Import'])
 
-        # Adding model 'PotrImportMessage'
+        # Adding model 'ImportMessage'
         db.create_table('potr_import_message', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('import_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.PotrImport'])),
+            ('poimport', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['translation_management.Import'])),
             ('msgid', self.gf('django.db.models.fields.CharField')(max_length=100)),
             ('msgstr', self.gf('django.db.models.fields.CharField')(max_length=4000)),
         ))
-        db.send_create_signal(u'translation_management', ['PotrImportMessage'])
+        db.send_create_signal(u'translation_management', ['ImportMessage'])
 
         # Adding model 'PoFiles'
         db.create_table(u'translation_management_pofiles', (
@@ -103,7 +103,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Removing unique constraint on 'PotrSetMessage', fields ['msgid', 'message_set', 'lang']
+        # Removing unique constraint on 'SetMessage', fields ['msgid', 'message_set', 'lang']
         db.delete_unique('potr_set_message', ['msgid', 'message_set_id', 'lang_id'])
 
         # Deleting model 'ProjectType'
@@ -112,25 +112,25 @@ class Migration(SchemaMigration):
         # Deleting model 'Language'
         db.delete_table('potr_lang_type')
 
-        # Deleting model 'PotrProject'
+        # Deleting model 'Project'
         db.delete_table('potr_project')
 
-        # Deleting model 'PotrProjectLanguage'
+        # Deleting model 'ProjectLanguage'
         db.delete_table('potr_project_lang')
 
-        # Deleting model 'PotrSet'
+        # Deleting model 'Set'
         db.delete_table('potr_set')
 
-        # Deleting model 'PotrSetMessage'
+        # Deleting model 'SetMessage'
         db.delete_table('potr_set_message')
 
-        # Deleting model 'PotrSetList'
+        # Deleting model 'SetList'
         db.delete_table('potr_set_list')
 
-        # Deleting model 'PotrImport'
+        # Deleting model 'Import'
         db.delete_table('potr_import')
 
-        # Deleting model 'PotrImportMessage'
+        # Deleting model 'ImportMessage'
         db.delete_table('potr_import_message')
 
         # Deleting model 'PoFiles'
@@ -150,21 +150,21 @@ class Migration(SchemaMigration):
             'pofile': ('django.db.models.fields.files.FileField', [], {'max_length': '100'})
         },
         u'translation_management.potrimport': {
-            'Meta': {'object_name': 'PotrImport', 'db_table': "'potr_import'"},
+            'Meta': {'object_name': 'Import', 'db_table': "'potr_import'"},
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'lang': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.Language']"}),
-            'message_set': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.PotrSet']"})
+            'message_set': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.Set']"})
         },
         u'translation_management.potrimportmessage': {
-            'Meta': {'object_name': 'PotrImportMessage', 'db_table': "'potr_import_message'"},
+            'Meta': {'object_name': 'ImportMessage', 'db_table': "'potr_import_message'"},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'import_id': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.PotrImport']"}),
+            'poimport': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.Import']"}),
             'msgid': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'msgstr': ('django.db.models.fields.CharField', [], {'max_length': '4000'})
         },
         u'translation_management.potrproject': {
-            'Meta': {'object_name': 'PotrProject', 'db_table': "'potr_project'"},
+            'Meta': {'object_name': 'Project', 'db_table': "'potr_project'"},
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'lang': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.Language']"}),
@@ -172,33 +172,33 @@ class Migration(SchemaMigration):
             'project_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.ProjectType']"})
         },
         u'translation_management.potrprojectlanguage': {
-            'Meta': {'object_name': 'PotrProjectLanguage', 'db_table': "'potr_project_lang'"},
+            'Meta': {'object_name': 'ProjectLanguage', 'db_table': "'potr_project_lang'"},
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'lang': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.Language']"}),
-            'project_id': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.PotrProject']"})
+            'project': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.Project']"})
         },
         u'translation_management.potrset': {
-            'Meta': {'object_name': 'PotrSet', 'db_table': "'potr_set'"},
+            'Meta': {'object_name': 'Set', 'db_table': "'potr_set'"},
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
-            'project_id': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.PotrProject']"})
+            'project': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.Project']"})
         },
         u'translation_management.potrsetlist': {
-            'Meta': {'object_name': 'PotrSetList', 'db_table': "'potr_set_list'"},
+            'Meta': {'object_name': 'SetList', 'db_table': "'potr_set_list'"},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'message_set': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.PotrSet']"}),
+            'message_set': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.Set']"}),
             'msgid': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'msgstr': ('django.db.models.fields.CharField', [], {'max_length': '4000'})
         },
         u'translation_management.potrsetmessage': {
-            'Meta': {'unique_together': "(('msgid', 'message_set', 'lang'),)", 'object_name': 'PotrSetMessage', 'db_table': "'potr_set_message'"},
+            'Meta': {'unique_together': "(('msgid', 'message_set', 'lang'),)", 'object_name': 'SetMessage', 'db_table': "'potr_set_message'"},
             'created_at': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_translated': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'lang': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.Language']"}),
-            'message_set': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.PotrSet']"}),
+            'message_set': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['translation_management.Set']"}),
             'msgid': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'msgstr': ('django.db.models.fields.CharField', [], {'max_length': '4000'}),
             'updated_at': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})

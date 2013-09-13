@@ -10,7 +10,7 @@ class ProjectType(models.Model):
         db_table = 'potr_project_type'
 
     def __unicode__(self):
-        return u'%s' % (self.name)
+        return u'%s' % self.name
 
 
 class Language(models.Model):
@@ -21,10 +21,10 @@ class Language(models.Model):
         db_table = 'potr_lang_type'
 
     def __unicode__(self):
-        return u'%s' % (self.name)
+        return u'%s' % self.name
 
 
-class PotrProject(models.Model):
+class Project(models.Model):
     name = models.CharField(max_length=40)
     created_at = models.DateTimeField(auto_now=True)
     project_type = models.ForeignKey(ProjectType)
@@ -32,15 +32,14 @@ class PotrProject(models.Model):
 
     class Meta:
         db_table = 'potr_project'
-        permissions = (('add_project', 'Add project'),)
 
     def __unicode__(self):
-        return u'%s' % (self.name)
+        return u'%s' % self.name
 
 
-class PotrProjectLanguage(models.Model):
+class ProjectLanguage(models.Model):
     lang = models.ForeignKey(Language)
-    project_id = models.ForeignKey(PotrProject)
+    project = models.ForeignKey(Project)
     created_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -48,25 +47,23 @@ class PotrProjectLanguage(models.Model):
         permissions = (('can_edit', 'Edit message'),)
 
     def __unicode__(self):
-        return u'%s:%s' % (self.project_id, self.lang_id)
+        return u'%s:%s' % (self.project, self.lang_id)
 
 
-class PotrSet(models.Model):
-    project_id = models.ForeignKey(PotrProject)
+class Set(models.Model):
+    project = models.ForeignKey(Project, related_name='set')
     name = models.CharField(max_length=40)
     created_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = 'potr_set'
-        permissions = (('add_set', 'Add set'),)
 
     def __unicode__(self):
-        return u'%s' % (self.id)
+        return u'%s' % self.id
 
 
-
-class PotrSetMessage(models.Model):
-    message_set = models.ForeignKey(PotrSet)
+class SetMessage(models.Model):
+    message_set = models.ForeignKey(Set)
     lang = models.ForeignKey(Language)
     msgid = models.CharField(max_length=100)
     msgstr = models.CharField(max_length=4000)
@@ -79,27 +76,28 @@ class PotrSetMessage(models.Model):
         unique_together = ('msgid', 'message_set', 'lang')
         permissions = (('edit_message', 'Edit message'),)
 
-
     def __unicode__(self):
         return u'%s : %s' % (self.lang.name, self.msgid)
 
+
 def add_other_languages_messages(sender, instance, created, **kwargs):
-    project = instance.message_set.project_id
+    project = instance.message_set.project
     if instance.lang_id != project.lang_id:
         return
-    for lang in project.potrprojectlanguage_set.exclude(lang=instance.lang_id):
-        PotrSetMessage.objects.get_or_create(
-                                     message_set=instance.message_set,
-                                     lang_id=lang.lang_id,
-                                     msgid=instance.msgid,
-                                     defaults={'is_translated':False,
-                                               'msgstr': instance.msgstr})
 
-signals.post_save.connect(add_other_languages_messages, sender=PotrSetMessage)
+    for lang in project.projectlanguage_set.exclude(lang=instance.lang_id):
+        SetMessage.objects.get_or_create(
+            message_set=instance.message_set,
+            lang_id=lang.lang_id,
+            msgid=instance.msgid,
+            defaults={'is_translated': False, 'msgstr': instance.msgstr})
 
 
-class PotrSetList(models.Model):
-    message_set = models.ForeignKey(PotrSet)
+signals.post_save.connect(add_other_languages_messages, sender=SetMessage)
+
+
+class SetList(models.Model):
+    message_set = models.ForeignKey(Set)
     msgid = models.CharField(max_length=100)
     msgstr = models.CharField(max_length=4000)
 
@@ -107,8 +105,8 @@ class PotrSetList(models.Model):
         db_table = 'potr_set_list'
 
 
-class PotrImport(models.Model):
-    message_set = models.ForeignKey(PotrSet)
+class Import(models.Model):
+    message_set = models.ForeignKey(Set)
     lang = models.ForeignKey(Language)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -116,13 +114,14 @@ class PotrImport(models.Model):
         db_table = 'potr_import'
 
 
-class PotrImportMessage(models.Model):
-    import_id = models.ForeignKey(PotrImport)
+class ImportMessage(models.Model):
+    poimport = models.ForeignKey(Import)
     msgid = models.CharField(max_length=100)
     msgstr = models.CharField(max_length=4000)
 
     class Meta:
         db_table = 'potr_import_message'
+
 
 class PoFiles(models.Model):
     pofile = models.FileField(upload_to='documents/')
