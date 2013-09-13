@@ -1,0 +1,9 @@
+-e .
+nose
+Django==1.5
+mysql-python==1.2.4
+polib
+django-debug-toolbar==0.9.4
+django-guardian
+django-social-auth
+South

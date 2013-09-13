@@ -1,0 +1,84 @@
+{% load i18n  %}
+
+<div class="popup_form" style="display:none">
+    <form action="{% url 'update_msg' %}" method="post">{% csrf_token %}
+        <div class="row-fluid">
+            <div class="span3 source" name="source"></div>
+            <div class="span3 target">
+                <textarea name="msg_str" rows="4" cols="50"></textarea>
+                <input type="hidden" name="id_of_message"/>
+            </div>
+            <div class="span3 translated">
+                <select class="select" name='is_translated'>
+                    <option value="True">{% trans "Translated"%}</option>
+                    <option value="False">{% trans "Not Translated"%}</option>
+                </select>
+
+                <div class="btn-toolbar" style="margin: 0;">
+                    <div class="btn-group">
+                        <button class="btn btn-info inline_cancel">
+                            {% trans "Cancel" %}
+                        </button>
+                    </div>
+                    {% if perms.potrsetmessage.edit_message %}
+                    <div class="btn-group">
+                        <button class="btn btn-info same_target" type="submit" name="action" value="same_target">
+                            {% trans "Save" %}
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-link btn-mini btn-block show_prev" type="submit" name="action" value="show_prev">
+            {% trans "Show Previous" %}
+        </button>
+    </form>
+</div>
+<div id="table">
+    <table class="table table-striped table-hover" style="cursor: pointer;">
+        <thead>
+            <tr class="row">
+                <th>
+                <div class="row-fluid">
+                    <div class="span3"> {% trans "MSG_ID" %} </div>
+                    <div class="span4"> {% trans "Message in " %} {{source_lang_name}}</div>
+                    <div class="span4"> {% trans "Message in " %}{{cur_lang_name}}</div>
+                    <div class="span1">
+                        <div class="header-text">
+                          {% trans "Done" %}
+                        </div>
+                    </div>
+                </div>
+            </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in message_list %}
+            <tr class="target_clickable row {% if not row.is_translated %} warning {% else %} success {% endif %}">
+            <td class="span12" style="word-wrap: break-word;">
+                <input type="hidden" name="id_of_message" value="{{row.target_id}}" />
+                <div class="row-fluid">
+                    <div class="span3"> {{ row.msg_id}} </div>
+                    <div class="span4" name="msg_source"> {{ row.msg_source|truncatechars:45}} </div>
+                    <div class="span4" name="msg_target"> {{ row.msg_target|truncatechars:45}} </div>
+
+                    <div class="span1" name="is_trans">
+                      {% if row.is_translated %}
+                        <i class="icon-check"></i>
+                      {% endif %}
+
+                    </div>
+                </div>
+            </td>
+            </tr>
+            <tr style="display:none" class="collapse row" >
+            <td class="span12" style="word-wrap: break-word;">
+                
+            </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>

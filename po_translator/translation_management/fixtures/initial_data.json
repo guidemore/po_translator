@@ -1,0 +1,6 @@
+[{"pk": 1, "model": "translation_management.projecttype", "fields": {"name": "django"}},
+ {"pk": 2, "model": "translation_management.projecttype", "fields": {"name": "android"}},
+ {"pk": 3, "model": "translation_management.projecttype", "fields": {"name": "csv_file", "description": "Csv file must be in next format:\n - first row: name, value\n -next: values separated by ',' (comma) and doublequoted\n For ex:\n name,value \"files.location\",\"List of steps\"\n\"menu.items\",\"Select\""}},
+{"pk": 1, "model": "translation_management.language", "fields": {"code": "en", "name": "English"}},
+{"pk": 2, "model": "translation_management.language", "fields": {"code": "ru", "name": "\u0420\u0443\u0441\u0441\u043a\u0438\u0439"}},
+{"pk": 3, "model": "translation_management.language", "fields": {"code": "sp", "name": "Spanish"}}]

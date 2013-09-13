@@ -1,0 +1,14 @@
+*.log
+*.pot
+*.pyc
+*.*~
+
+local_settings.py
+po_translator/static/
+*.sql
+
+.idea
+.project
+.pydevproject
+po_translator.sublime-project
+po_translator.sublime-workspace

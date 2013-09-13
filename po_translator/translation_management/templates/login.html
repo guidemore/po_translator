@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load i18n  %}
+
+{% block extra_head %}
+{% endblock %}
+
+{% block content %}
+
+  {% if form.errors %}
+    <p class="error">Sorry, that's not a valid username or password</p>
+  {% endif %}
+
+  <form class="form-horizontal" action="" method="post"> {% csrf_token %}
+  <legend> Log in </legend>
+
+    <div class="control-group">
+    <label class="control-label" for="username">User name:</label>
+    <div class="controls">
+      <input type="text" name="username" value="" id="username">
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label class="control-label" for="password">Password:</label>
+    <div class="controls">
+        <input type="password" name="password" value="" id="password">
+    </div>
+  </div>
+
+  <div class="control-group">
+    <div class="controls">
+        <input class="btn" type="submit" value="login" />
+    </div>
+  </div>
+
+    <input type="hidden" name="next" value="{% url 'home' %}" />
+  </form>
+
+    <p> Login with <a href="{% url 'socialauth_begin' 'google' %}">
+    <button class="btn btn-danger btn-mini">Google <i class="icon-plus icon-white"></i></button> </a>     </p>
+
+{% endblock %}

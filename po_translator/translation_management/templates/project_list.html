@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n  %}
+
+{% block extra_head %}
+{% endblock %}
+
+{% block content %}
+
+<h3> {% trans "Select project:"%} </h3>
+    <ul>
+    {% for li in projects %}
+        <li> <h4><a href="{% url 'cur_project' project_id=li.id %}"> {{li.name}} : {{li.project_type.name}} </a> </h4> </li>
+    {% endfor %}
+    </ul>
+<h4>    <a href="{% url 'add_project' %}"> {% trans "Add new project" %} </a> </h4>
+
+{% endblock %}

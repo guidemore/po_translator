@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="general.appName">GuideMore</string>
+    <string name="general.guideDownloading">DOWNLOAD</string>
+    <string name="general.emptyString"></string>
+    <string name="general.feedbackSubject">User feedback</string>
+    <string name="general.feedbackBody">Write your feedback here, please.</string>
+
+</resources>
