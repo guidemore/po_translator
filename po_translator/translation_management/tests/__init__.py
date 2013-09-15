@@ -1,1 +1,1 @@
-from test_potr import * 
+from test import *

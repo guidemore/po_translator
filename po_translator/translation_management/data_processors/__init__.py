@@ -13,6 +13,7 @@ def data_processor_class(proj_type):
     def wrapper(cls):
         DATAPROCESSOR_REGISTER[proj_type] = cls
         return cls
+
     return wrapper
 
 
