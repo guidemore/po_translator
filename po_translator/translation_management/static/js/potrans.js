@@ -21,6 +21,15 @@ function setQueryVariable(query, keyString, replaceString) {
     return vars.join("&")
 }
 
+function Truncate(str, maxLength) {
+    if (str.length > maxLength) {
+        str = str.substring(0, maxLength + 1);
+        str = str.substring(0, Math.min(str.length, str.lastIndexOf(" ")));
+        str = str + '...';
+    }
+    return str;
+}
+
 $(function(){
 
     $('<div id="ajax-busy"/>').hide().appendTo('body');
@@ -50,6 +59,7 @@ $(function(){
         var form = $(".popup_form")
 
         form.find('div[name="source"]').text(source);
+        form.find('select[name="is_translated"]').val('true');
         form.find('textarea[name="msg_str"]').text(target);
         form.find('textarea[name="msg_str"]').val(target);
         form.find('input[name="id_of_message"]').attr('value', id_to_modify)
@@ -164,7 +174,9 @@ $(function(){
                         }
                         ;
                     selected_row.find('input[name="is_trans"]').attr('disabled', true);
-                    selected_row.find('div[name="msg_target"]').text(new_text);
+                    selected_row.find('div[name="msg_target"]').text(Truncate(new_text, 45));
+                    selected_row.find('input[name="msg_target"]').attr('value', new_text);
+                    selected_row.find('input[name="msg_target"]').text(new_text);
                 }
                 else {
                     alert(result['message']);   
@@ -225,7 +237,7 @@ $(function(){
                 $('#ajax-busy').hide()
                 var result = jQuery.parseJSON(data);
                 if (result['saved']) {
-                    prev_tr.find('div[name="msg_source"]').text(new_text)
+                    prev_tr.find('div[name="msg_source"]').text(Truncate(new_text, 60))
                     form.find('textarea[name="msg_str"]').text(new_text);
                     clickable_div.show();
                     collapse_div.hide();}
@@ -271,7 +283,7 @@ $(function(){
                 $('#ajax-busy').hide()
                 var result = jQuery.parseJSON(data);
                 if (result['saved']) {
-                    prev_tr.find('div[name="msg_source"]').text(new_text)
+                    prev_tr.find('div[name="msg_source"]').text(Truncate(new_text, 60))
                     form.find('textarea[name="msg_str"]').text(new_text);
 
                     clickable_div.show();
