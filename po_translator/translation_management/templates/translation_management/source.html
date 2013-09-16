@@ -1,4 +1,4 @@
-{% load i18n  %}
+{% load i18n %}
 
 <div id="table">
     <table class="table table-striped table-hover" style="cursor: pointer;">
@@ -7,7 +7,7 @@
                 <th>
                     <div class="row-fluid span12">
                         <div class="span4"> {% trans "MSG_ID" %} </div>
-                        <div class="span8"> {% trans "Message in " %} {{source_lang_name}}</div>
+                        <div class="span8"> {% trans "Message in " %} {{ source_lang_name }}</div>
                     </div>
                 </th>
             </tr>
@@ -17,15 +17,15 @@
                 <tr class="row">
                     <td class="span12" style="word-wrap: break-word;">
                         <div class="clickable row" name="clickable">
-                            <div class="span4"> {{ row.msg_id}} </div>
-                            <div class="span7" name="msg_source"> {{ row.msg_source|truncatechars:60}} </div>
+                            <div class="span4"> {{ row.msg_id }} </div>
+                            <div class="span7" name="msg_source"> {{ row.msg_source|truncatechars:60 }} </div>
                         </div>
-                        <div style="display:none" class="collapse1 row" name="collapse1">
+                        <div style="display:none" class="collapse_div row" name="collapse_div">
                             <form action="{% url 'update_msg' %}" method="post">{% csrf_token %}
-                                <div class="span4"> {{ row.msg_id}} </div>
+                                <div class="span4"> {{ row.msg_id }} </div>
                                 <div class="span7">
-                                    <textarea name="msg_str" rows="4" cols="50">{{ row.msg_source}}</textarea>
-                                    <input type="hidden" name="id_of_message" value="{{row.id}}"/>
+                                    <textarea name="msg_str" rows="4" cols="50">{{ row.msg_source }}</textarea>
+                                    <input type="hidden" name="id_of_message" value="{{ row.id }}"/>
                                     <div class="btn-toolbar" style="margin: 0;">
                                         <div class="btn-group">
                                             <button class="btn btn-info source_cancel">
@@ -33,16 +33,16 @@
                                             </button>
                                         </div>
                                         {% if perms.potrsetmessage.edit_message %}
-                                        <div class="btn-group">
+                                            <div class="btn-group">
                                                 <button class="btn btn-info new" type="submit" name="action" value="new">
                                                     {% trans "Save: New meaning" %}
                                                 </button>
-                                        </div>
-                                        <div class="btn-group">
+                                            </div>
+                                            <div class="btn-group">
                                                 <button class="btn btn-info same" type="submit" name="action" value="same">
                                                     {% trans "Save: Same meaning" %}
                                                 </button>
-                                        </div>
+                                            </div>
                                         {% endif %}
                                     </div>
                                 </div>

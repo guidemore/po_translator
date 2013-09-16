@@ -34,7 +34,7 @@ $(function(){
     });
 
     $(".clickable").click(function() {
-        $(".collapse1.row").hide();
+        $(".collapse_div.row").hide();
         $(".clickable, .show_prev").show();
         $('.old_values').remove();
         $(this).next().show();
@@ -189,7 +189,7 @@ $(function(){
     $(".source_cancel").click(function(event) {
 
         event.preventDefault()
-        $(".collapse1").hide();
+        $(".collapse_div").hide();
         $(".clickable").show()
 
     });
@@ -199,7 +199,7 @@ $(function(){
         event.preventDefault()
         var form = $(this).closest("form");
         var prev_tr = $(this).closest("tr")
-        var collapse_div = prev_tr.find('div[name="collapse1"]')
+        var collapse_div = prev_tr.find('div[name="collapse_div"]')
         var clickable_div = prev_tr.find('div[name="clickable"]')
         var url = form.attr('action');
         var token = form.find('input[name="csrfmiddlewaretoken"]').attr('value');
@@ -250,7 +250,7 @@ $(function(){
         var token = form.find('input[name="csrfmiddlewaretoken"]').attr('value');
         var id_to_modify = form.find('input[name="id_of_message"]').attr('value');
         var new_text = form.find('textarea[name="msg_str"]').val();
-        var collapse_div = prev_tr.find('div[name="collapse1"]')
+        var collapse_div = prev_tr.find('div[name="collapse_div"]')
         var clickable_div = prev_tr.find('div[name="clickable"]')
 
         $.ajax({

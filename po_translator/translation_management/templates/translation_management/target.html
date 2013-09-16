@@ -1,4 +1,4 @@
-{% load i18n  %}
+{% load i18n %}
 
 <div class="popup_form" style="display:none">
     <form action="{% url 'update_msg' %}" method="post">{% csrf_token %}
@@ -9,8 +9,8 @@
             </div>
             <div class="span3 translated">
                 <select class="select" name='is_translated'>
-                    <option value="True">{% trans "Translated"%}</option>
-                    <option value="False">{% trans "Not Translated"%}</option>
+                    <option value="True">{% trans "Translated" %}</option>
+                    <option value="False">{% trans "Not Translated" %}</option>
                 </select>
                 <div class="btn-toolbar" style="margin: 0;">
                     <div class="btn-group">
@@ -41,8 +41,8 @@
                 <th>
                     <div class="row-fluid">
                         <div class="span3"> {% trans "MSG_ID" %} </div>
-                        <div class="span4"> {% trans "Message in " %} {{source_lang_name}}</div>
-                        <div class="span4"> {% trans "Message in " %}{{cur_lang_name}}</div>
+                        <div class="span4"> {% trans "Message in " %} {{ source_lang_name }}</div>
+                        <div class="span4"> {% trans "Message in " %} {{ cur_lang_name }}</div>
                         <div class="span1">
                             <div class="header-text">
                                 {% trans "Done" %}
@@ -56,11 +56,11 @@
             {% for row in message_list %}
                 <tr class="target_clickable row">
                     <td class="span12" style="word-wrap: break-word;">
-                        <input type="hidden" name="id_of_message" value="{{row.target_id}}" />
+                        <input type="hidden" name="id_of_message" value="{{ row.target_id }}" />
                         <div class="row-fluid">
-                            <div class="span3"> {{ row.msg_id}} </div>
-                            <div class="span4" name="msg_source"> {{ row.msg_source|truncatechars:45}} </div>
-                            <div class="span4" name="msg_target"> {{ row.msg_target|truncatechars:45}} </div>
+                            <div class="span3"> {{ row.msg_id }} </div>
+                            <div class="span4" name="msg_source"> {{ row.msg_source|truncatechars:45 }} </div>
+                            <div class="span4" name="msg_target"> {{ row.msg_target|truncatechars:45 }} </div>
 
                             <div class="span1" name="is_trans">
                                 {% if row.is_translated %}
@@ -68,8 +68,8 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <input type="hidden" name="msg_source" value="{{ row.msg_source}}" >
-                        <input type="hidden" name="msg_target" value="{{ row.msg_target}}" >
+                        <input type="hidden" name="msg_source" value="{{ row.msg_source }}" >
+                        <input type="hidden" name="msg_target" value="{{ row.msg_target }}" >
                     </td>
                 </tr>
             {% endfor %}
