@@ -5,7 +5,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    (r'^login/$',  login, {'template_name': 'po_translator/login.html'}),
+    url(r'^login/$',  login, {'template_name': 'po_translator/login.html'}, name='login'),
     url(r'^login/external/', include('social_auth.urls', app_name='social_auth')),
     url(r'^logout/$', logout, name='logout'),
 )
