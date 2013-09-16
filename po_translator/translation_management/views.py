@@ -120,7 +120,10 @@ def update_msg(request):
                 return save_same_target(id_of_message, new_msg, request.POST['is_translated'])
             elif request.POST['action'] == 'show_prev':
                 return show_prev(id_of_message)
-        return {'saved': False, 'message': "New meaning can't be empty"}
+        return {'saved': False, 
+                'message': "New meaning can't be empty",
+                'prev_source': "You don't have permission",
+                'prev_target': "You don't have permission"}
     return redirect('home')
 
 

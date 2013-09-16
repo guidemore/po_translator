@@ -9,7 +9,7 @@ from po_translator.translation_management import data_processors
 class PoFileForm(forms.Form):
     lang = forms.ModelChoiceField(queryset=Language.objects.all(), empty_label=None, label=_('Select a language'))
     project = forms.DecimalField()
-    pofile = forms.FileField(label=_('Select a po-file'))
+    pofile = forms.FileField(required=True,label=_('Select a po-file'))
 
     def clean(self):
         cleaned_data = super(PoFileForm, self).clean()
@@ -21,7 +21,11 @@ class PoFileForm(forms.Form):
 
             data_processor = data_processors.get_data_processor(project.project_type.name)
 
-            pofile = cleaned_data.get('pofile').read()
+            if cleaned_data.get('pofile'):
+                pofile = cleaned_data.get('pofile').read()
+            else:
+                error = _('File not found')
+                raise forms.ValidationError(error)
             try:
                 translations_data = data_processor.parse_file(pofile)
             except data_processors.DataParsingError:

@@ -30,13 +30,13 @@ $(function(){
         autoOpen: false,
         resizable: false,
         modal: true,
-        width:'auto'
+        width:'80%'
     });
 
     $(".clickable").click(function() {
-        $(".collapse.row").hide();
+        $(".collapse1.row").hide();
         $(".clickable, .show_prev").show();
-    $('.old_values').remove();
+        $('.old_values').remove();
         $(this).next().show();
         $(this).hide()
     });
@@ -44,8 +44,8 @@ $(function(){
     $(".target_clickable").click(function() {
         
         var selected_row = $(this).closest("tr");
-        var source = selected_row.find('div[name="msg_source"]').text();
-        var target = selected_row.find('div[name="msg_target"]').text();
+        var source = selected_row.find('input[name="msg_source"]').attr('value');
+        var target = selected_row.find('input[name="msg_target"]').attr('value');
         var id_to_modify = selected_row.find('input[name="id_of_message"]').attr('value');
         var form = $(".popup_form")
 
@@ -161,11 +161,8 @@ $(function(){
                     selected_row.find('div[name="is_trans"]').children().remove();
                     if (is_trans == "True") {
                         selected_row.find('div[name="is_trans"]').append('<i class="icon-check"></i>');
-                        selected_row.removeClass('warning').addClass('success');
                         }
-                    else {
-                        selected_row.removeClass('success').addClass('warning');
-                    };
+                        ;
                     selected_row.find('input[name="is_trans"]').attr('disabled', true);
                     selected_row.find('div[name="msg_target"]').text(new_text);
                 }
@@ -189,11 +186,21 @@ $(function(){
 
     });
 
+    $(".source_cancel").click(function(event) {
+
+        event.preventDefault()
+        $(".collapse1").hide();
+        $(".clickable").show()
+
+    });
+
     $(".new").click(function(event) {
 
         event.preventDefault()
         var form = $(this).closest("form");
-        var prev_tr = $(this).closest("tr").prev()
+        var prev_tr = $(this).closest("tr")
+        var collapse_div = prev_tr.find('div[name="collapse1"]')
+        var clickable_div = prev_tr.find('div[name="clickable"]')
         var url = form.attr('action');
         var token = form.find('input[name="csrfmiddlewaretoken"]').attr('value');
         var id_to_modify = form.find('input[name="id_of_message"]').attr('value');
@@ -220,8 +227,8 @@ $(function(){
                 if (result['saved']) {
                     prev_tr.find('div[name="msg_source"]').text(new_text)
                     form.find('textarea[name="msg_str"]').text(new_text);
-                    prev_tr.show()
-                    prev_tr.next().hide()}
+                    clickable_div.show();
+                    collapse_div.hide();}
                 else {
                  alert(result['message']);   
                 };
@@ -238,12 +245,13 @@ $(function(){
 
         event.preventDefault()
         var form = $(this).closest("form");
-        var prev_tr = $(this).closest("tr").prev()
+        var prev_tr = $(this).closest("tr")
         var url = form.attr('action');
         var token = form.find('input[name="csrfmiddlewaretoken"]').attr('value');
         var id_to_modify = form.find('input[name="id_of_message"]').attr('value');
         var new_text = form.find('textarea[name="msg_str"]').val();
-
+        var collapse_div = prev_tr.find('div[name="collapse1"]')
+        var clickable_div = prev_tr.find('div[name="clickable"]')
 
         $.ajax({
             type: "POST",
@@ -266,8 +274,8 @@ $(function(){
                     prev_tr.find('div[name="msg_source"]').text(new_text)
                     form.find('textarea[name="msg_str"]').text(new_text);
 
-                    prev_tr.show()
-                    prev_tr.next().hide()}
+                    clickable_div.show();
+                    collapse_div.hide();}
                 else {
                  alert(result['message']);   
                 };
