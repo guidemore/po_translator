@@ -3,6 +3,7 @@
 *.pyc
 *.*~
 
+.env
 local_settings.py
 po_translator/static/
 *.sqlite
