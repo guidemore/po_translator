@@ -1,128 +1,123 @@
-{% load i18n cache %}
+{% load i18n cache staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
-    <title>po_Translate</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <title>Po-Translate</title>
 
-    <!-- Le styles -->
-    <link href="{{STATIC_URL}}bootstrap/css/bootstrap.css" rel="stylesheet">
-    <link href="{{STATIC_URL}}css/potrans.css" rel="stylesheet">
-    <link href="{{STATIC_URL}}css/jquery-ui.css" rel="stylesheet">
+    <link href="{% static 'bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+    <link href="{% static 'css/potrans.css' %}" rel="stylesheet">
+    <link href="{% static 'css/jquery-ui.css' %}" rel="stylesheet">
 
-    <script type="text/javascript" src="{{STATIC_URL}}js/jquery-1.9.1.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}js/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="{{STATIC_URL}}bootstrap/js/bootstrap.js"></script>
-  <!--   <script type="text/javascript" async="" src="/static/bootstrap/js/bootstrap.js">
-    </script>
-    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <script type="text/javascript" src="{% static 'js/jquery-1.9.1.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-ui.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bootstrap/js/bootstrap.js' %}"></script>
+
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
     <!-- Le fav and touch icons -->
-    </script>
     {% block extra_head %}{% endblock %}
     {% block customer_head %}{% endblock %}
-  </head>
+</head>
 
-  <body>
-  <header>
-  {% block body_header %}
-  {% endblock body_header %}
-  </header>
+<body>
+    <header>
+        {% block body_header %}
+        {% endblock body_header %}
+    </header>
 
-<div class="navbar navbar-static-top" style="margin: -1px -1px 0;">
-  <div class="navbar-inner">
-    <div class="container">
-      <ul class="nav">
-        {% if user.is_authenticated %}
-          <li class="dropdown" >
-            <a href="#" class="dropdown-toggle brand" data-toggle="dropdown">
-                {% if cur_proj_name|length %}
-                    {{cur_proj_name}}
+    <div class="navbar navbar-static-top" style="margin: -1px -1px 0;">
+        <div class="navbar-inner">
+            <div class="container">
+                {% if user.is_authenticated %}
+                    <ul class="nav">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle brand" data-toggle="dropdown">
+                                {% if cur_proj_name|length %}
+                                    {{ cur_proj_name }}
+                                {% else %}
+                                    {% trans "Select project" %}
+                                {% endif %}
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                {% for li in projects %}
+                                    <li><a href="{% url 'cur_project' project_id=li.id %}"> {{ li.name }} </a></li>
+                                {% endfor %}
+                                <li class="divider"></li>
+                                <li><a href="{% url 'add_project' %}"> {% trans "Add project" %} </a></li>
+                            </ul>
+                        </li>
+                        {% if project_id %}
+                            <li {% if translation %} class="active" {% endif %}>
+                                <a href="{% url 'cur_project' project_id=project_id %}">
+                                    {% trans "Translations" %}
+                                </a>
+                            </li>
+                            <li {% if show_sets %} class="active" {% endif %}>
+                                <a href="{% url 'views_sets' project_id=project_id %}">
+                                    {% trans "Sets" %}
+                                </a>
+                            </li>
+                            <li {% if show_languages %} class="active" {% endif %}>
+                                <a href="{% url 'views_languages' project_id=project_id %}">
+                                    {% trans "Languages" %}
+                                </a>
+                            </li>
+                            <li {% if show_permissions %} class="active" {% endif %}>
+                                <a href="{% url 'views_permissions' project_id=project_id %}">
+                                    {% trans "Permissions" %}
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if user.is_superuser %}
+                            <li {% if admin %}class="active"{% endif %}><a href="/admin">{% trans "Admin" %}</a></li>
+                        {% endif %}
+                    </ul>
+
+                    <ul class="nav pull-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                {% trans 'Logged as: ' %} {{ user_name }}
+                                <b class="caret"></b>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'logout' %}">{% trans "Logout" %}</a></li>
+                            </ul>
+                        </li>
+                    </ul>
                 {% else %}
-                   {% trans "Select project"%}
+                    <ul class="nav">
+                        <li class="active"><a href="{% url 'login' %}">{% trans "Login" %}</a></li>
+                    </ul>
                 {% endif %}
-              <b class="caret"></b>
-            </a>
-            <ul class="dropdown-menu">
-                {% for li in projects %}
-                    <li><a href="{% url 'cur_project' project_id=li.id %}"> {{li.name}} </a></li>
-                {% endfor %}
-                    <li class="divider"></li>
-                    <li><a href="{% url 'add_project' %}"> {% trans "Add project" %} </a></li>
-            </ul>
-          </li>
-          {% if project_id %}
-            <li {% if translation %} class="active" {% endif %}>
-              <a href="{% url 'cur_project' project_id=project_id %}">
-                {% trans "Translations" %}
-              </a>
-            </li>          <li {% if show_sets %} class="active" {% endif %}>
-              <a href="{% url 'views_sets' project_id=project_id %}">
-                {% trans "Sets" %}
-              </a>
-            </li>
-            <li {% if show_languages %} class="active" {% endif %}>
-              <a href="{% url 'views_languages' project_id=project_id %}">
-                {% trans "Languages" %}
-              </a>
-            </li>
-            <li {% if show_permissions %} class="active" {% endif %}>
-              <a href="{% url 'views_permissions' project_id=project_id %}">
-                {% trans "Permissions" %}
-              </a>
-            </li>
-          {% endif %}
-          {% if user.is_superuser %}
-          <li {% if admin %}class="active"{% endif %} ><a href="/admin">{% trans "Admin" %}</a></li>
-          {% endif %}
-          </ul>
-
-          <ul class="nav pull-right">
-            <li class="dropdown" >
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                  {% trans 'Logged as: '%} {{user_name}}
-                <b class="caret"></b>
-              </a>
-              <ul class="dropdown-menu">
-                      <li><a href="/logout">{% trans "Logout" %}</a></li>
-              </ul>
-            </li>
-          </ul>
-
-
-
-        {% else %}
-          <li class="active"><a href="/login">{% trans "Login" %}</a></li>
-          </ul>
-        {% endif %}
-   </div>
-  </div>
-</div>
-
-<div class="container main-container">
-  <div class="alert-container">
-    {% for message in messages %}
-      {% with message.tags as alert_type %}
-        {% with message as message_text %}
-           {% include "bootstrap_alert.html" %}
-        {% endwith %}
-      {% endwith %}
-    {% endfor %}
+            </div>
+        </div>
     </div>
 
-  <div class="row">
-    <div class="span12">
-      {% block content %}
-      {% endblock content %}
+    <div class="container main-container">
+        <div class="alert-container">
+            {% for message in messages %}
+                {% with message.tags as alert_type %}
+                    {% with message as message_text %}
+                        <div class="alert  alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{ message }}
+                        </div>
+                    {% endwith %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+
+        <div class="row">
+            <div class="span12">
+                {% block content %}
+                {% endblock content %}
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-<script type="text/javascript" src="{{STATIC_URL}}js/potrans.js"></script>
-  </body>
-  </html>
+    <script type="text/javascript" src="{% static 'js/potrans.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{% load i18n %}
+{% if sets %}
+    <div id="table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th> {% trans "number" %} </th>
+                    <th> {% trans "name" %}</th>
+                    <th> {% trans "created_at" %}</th>
+                    <th> {% trans "number of msgid" %} </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in sets %}
+                    <tr>
+                        <td> {{ row.message_set }} </td>
+                        <td> {{ row.name }} </td>
+                        <td> {{ row.created_at }} </td>
+                        <td> {{ row.len }} </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+    <div>
+        {% if can_delete %}
+            <form action="{% url 'views_sets' project_id=project_id %}" method="post">{% csrf_token %}
+                <button class="btn btn-danger" type="submit" onClick="if(!confirm('{% trans 'Are you sure?' %}')) return false;">
+                    {% trans "Delete last set" %}</button>
+            </form>
+        {% endif %}
+    </div>
+{% endif %}

@@ -1,0 +1,61 @@
+{% load i18n %}
+
+<div id="about" class="row">
+    <div class="span12">
+        <div id="header">
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">
+                    {% for er in form.non_field_errors %}
+                        Error: {{ er }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form class="form-horizontal" action="{% url 'add_target_language' project_id=project_id %}" method="post"
+                  enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="proj" value="{{ project_id }}"/>
+
+                <div class="control-group {% if form.lang.errors %} warning {% endif %}">
+                    <label class="control-label" for="lang">{{ form.lang.label_tag }}</label>
+
+                    <div class="controls">
+                        {{ form.lang }}
+                        <span class="help-inline">
+                            {% if form.pofile.errors %}
+                                {{ form.lang.errors }}
+                            {% else %}
+                                {{ form.lang.help_text }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="control-group {% if form.pofile.errors %} warning {% endif %}">
+                    <label class="control-label" for="pofile">{{ form.pofile.label_tag }}</label>
+
+                    <div class="controls">
+                        {{ form.pofile }}
+                        <span class="help-inline">
+                            {% if form.pofile.errors %}
+                                {{ form.pofile.errors }}
+                            {% else %}
+                                {{ form.pofile.help_text }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="controls">
+                        <button class="btn btn-success" type="submit">
+                            {% trans "Upload" %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+</div>
+

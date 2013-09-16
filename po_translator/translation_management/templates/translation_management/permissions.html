@@ -1,0 +1,91 @@
+{% load i18n %}
+<div id="table">
+    <table class="table table-striped table-hover" style="cursor: pointer;">
+        <thead>
+            <tr class="row">
+                <th>
+                    <div class="row-fluid">
+                        <div class="span4"> {% trans "Language" %} </div>
+                        <div class="span4"> {% trans "User name" %}</div>
+                        <div class="span2"> {% trans "Can write" %}</div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in permissions %}
+                <tr class="row">
+                    <td class="span12">
+                        <div class="row-fluid">
+                            <div class="span4"> {{ row.lang }} </div>
+                            <div class="span4"> {{ row.user }} </div>
+                            <div class="span2" name="is_trans">
+                                {% if row.can_change %}
+                                    <i class="icon-check"></i>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+{% if form.errors %}
+    <div class="alert alert-error">
+        {% for er in form.errors %}
+            Error: {{ er }}
+        {% endfor %}
+    </div>
+{% endif %}
+{% if can_add %}
+    <button type="button" class="btn btn-primary permis">{% trans "Add permission" %} </button>
+{% endif %}
+{% if form.non_field_errors %}
+    <div class="alert alert-error">
+        {% for er in form.non_field_errors %}
+            Error: {{ er }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if can_add %}
+    <div class="row-fluid collapse_perm" style="display:none">
+        <div class="span12">
+            <form action="{% url 'views_permissions' project_id=project_id %}" method="post">{% csrf_token %}
+                <div class="row-fluid">
+                    <div class="span4">
+                        <input type="hidden" name="proj" value="{{ project_id }}"/>
+                        {% trans "Select language" %} <br/>
+                        <select name='lang'>
+                            <option value="__none">{% trans "Select value" %}</option>
+                            {% for li in languages %}
+                                <option value="{{ li.lang.id }}">{{ li.lang.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="span4"> {% trans "Select user" %} <br/>
+                        <select name='user'>
+                            <option value="__none">{% trans "Select value" %}</option>
+                            {% for li in users %}
+                                <option value="{{ li.id }}">{{ li.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="span4">
+                        <button class="btn btn-info perm_add" type="submit">
+                            {% trans "Save permission" %}
+                        </button>
+                        <button class="btn btn-info perm_cancel" type="submit">
+                            {% trans "Cancel" %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endif %}
+
+

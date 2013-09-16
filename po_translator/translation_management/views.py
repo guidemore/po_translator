@@ -26,7 +26,7 @@ from .utils import (get_message_list, import_po_file, save_same,
 from .forms import PoFileForm, MessageForm, ProjectForm, AddPermission
 from .decorators import render_to_html, project_aware, render_to_json
 
-@render_to_html('project_list.html')
+@render_to_html('translation_management/project_list.html')
 def home(request):
     request.session.modified = True
     return  {}
@@ -43,7 +43,7 @@ def _set_var_to_path(request, name, value):
     return redirect(url)
 
 
-@render_to_html('project.html')
+@render_to_html('translation_management/project.html')
 @project_aware
 def project(request, project, lang_id=None):
     if request.method == 'POST':
@@ -150,7 +150,7 @@ def import_po_file_as_set(request, project, languages):
     return {'form': form,
             'errors': errors}
 
-@render_to_html('project.html')
+@render_to_html('translation_management/project.html')
 @project_aware
 def add_target_language(request, project):
     user = User.objects.get(id=request.user.pk)
@@ -192,7 +192,7 @@ def create_new_set(request, project):
     return context
 
 
-@render_to_html('project.html')
+@render_to_html('translation_management/project.html')
 @project_aware
 def export(request, project, lang_id=None):
     if request.method == 'POST':
@@ -218,12 +218,7 @@ def export(request, project, lang_id=None):
             'show_export': True}
 
 
-@render_to_html('admin.html')
-def admin_potr(request):
-    return {}
-
-
-@render_to_html('project.html')
+@render_to_html('translation_management/project.html')
 @project_aware
 def views_sets(request, project):
     user = User.objects.get(id=request.user.pk)
@@ -246,7 +241,7 @@ def views_sets(request, project):
             'show_sets': True}
 
 
-@render_to_html('project.html')
+@render_to_html('translation_management/project.html')
 @project_aware
 def views_languages(request, project):
     sets = []
@@ -259,7 +254,7 @@ def views_languages(request, project):
             'show_languages': True}
 
 
-@render_to_html('add_project.html')
+@render_to_html('translation_management/add_project.html')
 def add_project(request):
     if request.method == 'POST':
         form = ProjectForm(request.POST, request.FILES)
@@ -282,7 +277,7 @@ def logout(request):
     return redirect('home')
 
 
-@render_to_html('project.html')
+@render_to_html('translation_management/project.html')
 @project_aware
 def views_permissions(request, project):
     user = User.objects.get(id=request.user.pk)
