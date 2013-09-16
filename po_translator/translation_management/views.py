@@ -1,12 +1,10 @@
-import datetime
 import urllib
 
 from django.contrib import auth
-from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.contrib import messages as django_messages
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 
 from guardian.shortcuts import assign_perm
@@ -14,22 +12,20 @@ from guardian.shortcuts import assign_perm
 from po_translator.translation_management import data_processors
 
 # to register data processors import them
-from po_translator.translation_management.data_processors import (po, csv_file,
-                                                                  android_xml)
+from po_translator.translation_management.data_processors import (po, csv_file, android_xml)
 
-
-from .models import (Language, Project, Set, SetMessage,
-                    SetList, ProjectLanguage)
+from .models import (Language, Project, Set, SetMessage, SetList, ProjectLanguage)
 from .utils import (get_message_list, import_po_file, save_same,
-                   save_same_target, save_new, show_prev, delete_last,
-                   get_all_permissions, user_has_perm, get_sections_info)
+                    save_same_target, save_new, show_prev, delete_last,
+                    get_all_permissions, user_has_perm, get_sections_info)
 from .forms import PoFileForm, MessageForm, ProjectForm, AddPermission
 from .decorators import render_to_html, project_aware, render_to_json
+
 
 @render_to_html('translation_management/project_list.html')
 def home(request):
     request.session.modified = True
-    return  {}
+    return {}
 
 
 def _set_var_to_path(request, name, value):
@@ -39,7 +35,7 @@ def _set_var_to_path(request, name, value):
     request_key = {k: v for k, v in request.GET.iteritems()}
     request_key[name] = value
     url = "".join([url, '?', urllib.urlencode(
-                {key: request_key[key].encode('utf8') for key in request_key})])
+        {key: request_key[key].encode('utf8') for key in request_key})])
     return redirect(url)
 
 
@@ -81,32 +77,33 @@ def project(request, project, lang_id=None):
 
     if translated_filter in ('True', 'False'):
         target_filters['is_translated'] = translated_filter == 'True'
-    messages= get_message_list(project.id,
-                               lang_id,
-                               target_filters=target_filters,
-                               src_filters=stc_filters)
-    sections, sub_sections = get_sections_info(project.id,
-                                               lang_id,
-                                               section_filters=section_filters)
-    alterlangs = Language.objects.filter(projectlanguage__project_id=project).exclude(id=int(lang_id))
-    context = {'translation': True,
-               'message_list': messages,
-               'sections': sections,
-               'sub_sections': sub_sections,
-               'search_substring': search_substring,
-               'translated_filter': translated_filter,
-               'cur_lang_name': Language.objects.get(id=lang_id).name,
-               'cur_lang_id': int(lang_id),
-               'source_lang': project_language.id,
-               'source_lang_name': project_language.name,
-               'form': MessageForm(),
-               'alternative_languages_exists': alterlangs.exists(),
-               'hide_subsection': not request.GET.get('cur_section'),
-               'cur_section': request.GET.get('cur_section', None),
-               'cur_subsection': request.GET.get('cur_subsection', None),
-               'show_subsection': True and 'cur_subsection' in request.GET}
+    messages = get_message_list(project.id,
+                                lang_id,
+                                target_filters=target_filters,
+                                src_filters=stc_filters)
+    sections, sub_sections = get_sections_info(project.id, lang_id, section_filters=section_filters)
+    alter_languages = Language.objects.filter(projectlanguage__project_id=project).exclude(id=int(lang_id))
+    context = {
+        'translation': True,
+        'message_list': messages,
+        'sections': sections,
+        'sub_sections': sub_sections,
+        'search_substring': search_substring,
+        'translated_filter': translated_filter,
+        'cur_lang_name': Language.objects.get(id=lang_id).name,
+        'cur_lang_id': int(lang_id),
+        'source_lang': project_language.id,
+        'source_lang_name': project_language.name,
+        'form': MessageForm(),
+        'alternative_languages_exists': alter_languages.exists(),
+        'hide_subsection': not request.GET.get('cur_section'),
+        'cur_section': request.GET.get('cur_section', None),
+        'cur_subsection': request.GET.get('cur_subsection', None),
+        'show_subsection': True and 'cur_subsection' in request.GET
+    }
 
     return context
+
 
 @render_to_json
 def update_msg(request):
@@ -117,13 +114,11 @@ def update_msg(request):
             id_of_message = int(form.cleaned_data['id_of_message'])
             if request.POST['action'] == 'same':
                 return save_same(id_of_message, new_msg)
-            elif  request.POST['action'] == 'new':
+            elif request.POST['action'] == 'new':
                 return save_new(id_of_message, new_msg)
-            elif  request.POST['action'] == 'same_target':
-                return save_same_target(id_of_message,
-                                        new_msg,
-                                        request.POST['is_translated'])
-            elif  request.POST['action'] == 'show_prev':
+            elif request.POST['action'] == 'same_target':
+                return save_same_target(id_of_message, new_msg, request.POST['is_translated'])
+            elif request.POST['action'] == 'show_prev':
                 return show_prev(id_of_message)
         return {'saved': False, 'message': "New meaning can't be empty"}
     return redirect('home')
@@ -136,19 +131,15 @@ def import_po_file_as_set(request, project, languages):
         form.fields['lang'].queryset = languages
         if form.is_valid():
             cur_lang = form.cleaned_data['lang']
-            import_po_file(form.cleaned_data['pofile'],
-                           project.id,
-                           cur_lang.id)
-            return redirect('project',
-                            project_id=project.id,
-                            lang_id=cur_lang.id)
+            import_po_file(form.cleaned_data['pofile'], project.id, cur_lang.id)
+            return redirect('project', project_id=project.id, lang_id=cur_lang.id)
         else:
             errors = form.errors.values()
     else:
         form = PoFileForm()
         form.fields['lang'].queryset = languages
-    return {'form': form,
-            'errors': errors}
+    return {'form': form, 'errors': errors}
+
 
 @render_to_html('translation_management/project.html')
 @project_aware
@@ -199,9 +190,7 @@ def export(request, project, lang_id=None):
         lang_id = int(request.POST['lang'])
 
     cur_proj = project.id
-    if (lang_id and ProjectLanguage.objects
-                                       .filter(lang=lang_id,
-                                               project_id=cur_proj).exists()):
+    if lang_id and ProjectLanguage.objects.filter(lang=lang_id, project_id=cur_proj).exists():
 
         dataset = get_message_list(cur_proj, lang_id)
         for row in dataset:
@@ -214,8 +203,7 @@ def export(request, project, lang_id=None):
         response['Content-Disposition'] = 'attachment; filename="django.po"'
         return response
     errors = _('Set does not exist for this language')
-    return {'errors': errors,
-            'show_export': True}
+    return {'errors': errors, 'show_export': True}
 
 
 @render_to_html('translation_management/project.html')
@@ -236,9 +224,7 @@ def views_sets(request, project):
             'name': cur_set.name,
             'created_at': cur_set.created_at,
             'len': SetList.objects.filter(message_set=cur_set.id).count()})
-    return {'sets': sets,
-            'can_delete': can_delete,
-            'show_sets': True}
+    return {'sets': sets, 'can_delete': can_delete, 'show_sets': True}
 
 
 @render_to_html('translation_management/project.html')
@@ -247,11 +233,8 @@ def views_languages(request, project):
     sets = []
     all_lang = ProjectLanguage.objects.filter(project_id=project.id)
     for cur_set in all_lang:
-        sets.append({
-            'name': cur_set.lang.name,
-            'created_at': cur_set.created_at})
-    return {'sets': sets,
-            'show_languages': True}
+        sets.append({'name': cur_set.lang.name, 'created_at': cur_set.created_at})
+    return {'sets': sets, 'show_languages': True}
 
 
 @render_to_html('translation_management/add_project.html')
@@ -291,19 +274,20 @@ def views_permissions(request, project):
             lang_id = form.cleaned_data['lang']
             lang = Language.objects.get(id=lang_id)
             user = User.objects.get(id=user_id)
-            project_language = ProjectLanguage.objects.get(
-                                                   project_id=project.id,
-                                                   lang=lang)
+            project_language = ProjectLanguage.objects.get(project_id=project.id, lang=lang)
             assign_perm('can_edit', user, project_language)
     else:
         form = AddPermission()
     permissions = get_all_permissions(project.id)
     users = User.objects.all()
-    return {'permissions': permissions,
-            'show_permissions': True,
-            'users': users,
-            'can_add': can_add,
-            'form': form}
+    return {
+        'permissions': permissions,
+        'show_permissions': True,
+        'users': users,
+        'can_add': can_add,
+        'form': form
+    }
+
 
 @render_to_json
 @project_aware
@@ -318,13 +302,11 @@ def get_subsection(request, project, lang_id):
     project_language = Language.objects.get(project=project)
     lang_id = lang_id or project_language.id
     section_filters = {}
+    sub_sections = []
     if 'cur_section' in request.GET:
-        section = ''
         if request.GET.get('cur_section'):
             section = "%s." % request.GET.get('cur_section')
             section_filters['msgid__startswith'] = section
 
-        _, sub_sections = get_sections_info(project.id,
-                                            lang_id,
-                                            section_filters=section_filters)
+        _, sub_sections = get_sections_info(project.id, lang_id, section_filters=section_filters)
     return sub_sections

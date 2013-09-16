@@ -21,7 +21,7 @@ def view_creation(sender, **kwargs):
                                ON potr_set.id=potr_set_message.message_set_id
                          GROUP BY project_id,
                                   msgid,
-                                  lang_id;""".replace("\n", '')
-                                             .format(view_name=view_name))
+                                  lang_id;""".replace("\n", '').format(view_name=view_name))
+
 
 post_syncdb.connect(view_creation, sender=models)

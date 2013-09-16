@@ -1,6 +1,4 @@
-from models import (ProjectType, Language, Project, Set, SetMessage,
-                    SetList, Import, ImportMessage, PoFiles,
-                    ProjectLanguage)
+from models import (  Project  )
 
 
 def common_data(request):
@@ -10,7 +8,9 @@ def common_data(request):
         user_name = '%s %s' % (request.user.first_name, request.user.last_name)
     else:
         user_name = False
-    return {'projects': projects,
-            'cur_proj_name': '',
-            'languages': [],
-            'user_name': user_name }
+    return {
+        'projects': projects,
+        'cur_proj_name': '',
+        'languages': [],
+        'user_name': user_name
+    }

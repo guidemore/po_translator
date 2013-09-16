@@ -17,20 +17,20 @@
     <div class="navbar-inner">
         <div class="container">
             <div class="nav-collapse collapse navbar-responsive-collapse">
-                <form class="navbar-form pull-left" action="../" method="GET">
+                <form class="navbar-form pull-left" action="" method="GET">
 
                     <select class="section span2" name='cur_section'>
                         <option value="" {% if not cur_section %}
                                 selected {% endif %}>{% trans "Show All Sections" %}</option>
                         {% for li in sections %}
-                            <option value="{{ li }}" {% if cur_section = li %} selected {% endif %}>{{ li }}</option>
+                            <option value="{{ li }}" {% if cur_section == li %} selected {% endif %}>{{ li }}</option>
                         {% endfor %}
                     </select>
 
                     <select class="sel_subsection span2" name='cur_subsection'>
                         <option value="" {% if not cur_section %} selected {% endif %}>{% trans "Show all" %}</option>
                         {% for li in sub_sections %}
-                            <option value="{{ li }}" {% if cur_subsection = li %} selected {% endif %}>{{ li }}</option>
+                            <option value="{{ li }}" {% if cur_subsection == li %} selected {% endif %}>{{ li }}</option>
                         {% endfor %}
                     </select>
                     {% if cur_lang_id != source_lang %}

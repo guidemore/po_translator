@@ -21,10 +21,10 @@ class DataProcessor(base.DataProcessor):
             'PO-Revision-Date': datetime.datetime.now(),
             'MIME-Version': '1.0',
             'Content-Type': 'text/plain; charset=utf-8',
-            'Content-Transfer-Encoding': '8bit'}
+            'Content-Transfer-Encoding': '8bit'
+        }
 
         for row in dataset:
-            entry = polib.POEntry(msgid=row['msg_id'],
-                                  msgstr=row['msg_target'])
+            entry = polib.POEntry(msgid=row['msg_id'], msgstr=row['msg_target'])
             po.append(entry)
         return unicode(po)

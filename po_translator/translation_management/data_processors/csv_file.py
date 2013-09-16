@@ -1,6 +1,8 @@
-from . import base, data_processor_class, DataParsingError
 import csv
 import cStringIO
+
+from . import base, data_processor_class, DataParsingError
+
 
 @data_processor_class('csv_file')
 class DataProcessor(base.DataProcessor):
