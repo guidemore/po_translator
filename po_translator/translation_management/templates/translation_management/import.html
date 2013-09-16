@@ -14,7 +14,7 @@
             <form class="form-horizontal" action="{% url 'add_target_language' project_id=project_id %}" method="post"
                   enctype="multipart/form-data">
                 {% csrf_token %}
-                <input type="hidden" name="proj" value="{{ project_id }}"/>
+                <input type="hidden" name="project" value="{{ project_id }}"/>
 
                 <div class="control-group {% if form.lang.errors %} warning {% endif %}">
                     <label class="control-label" for="lang">{{ form.lang.label_tag }}</label>
