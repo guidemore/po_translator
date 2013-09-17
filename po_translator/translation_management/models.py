@@ -44,7 +44,8 @@ class ProjectLanguage(models.Model):
 
     class Meta:
         db_table = 'potr_project_lang'
-        permissions = (('can_edit', 'Edit message'),)
+        permissions = (('can_edit', 'Edit message'),
+                       ('can_read', 'Read message'),)
 
     def __unicode__(self):
         return u'%s:%s' % (self.project, self.lang_id)

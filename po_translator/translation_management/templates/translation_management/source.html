@@ -32,7 +32,7 @@
                                                 {% trans "Cancel" %}
                                             </button>
                                         </div>
-                                        {% if perms.potrsetmessage.edit_message %}
+                                        {% if can_edit %}
                                             <div class="btn-group">
                                                 <button class="btn btn-info new" type="submit" name="action" value="new">
                                                     {% trans "Save: New meaning" %}

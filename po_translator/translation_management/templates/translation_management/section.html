@@ -60,7 +60,7 @@
                 </ul>
                 <ul class="nav pull-right">
                     {% ifequal cur_lang_id source_lang %}
-                        {% if perms.projectlanguage.can_add_projectlanguage %}
+                        {% if site_admin %}
                             <li class="divider-vertical"></li>
                             <li>
                                 <a href="#" class="immediate-upload">

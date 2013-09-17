@@ -12,5 +12,7 @@ def common_data(request):
         'projects': projects,
         'cur_proj_name': '',
         'languages': [],
-        'user_name': user_name
+        'user_name': user_name,
+        'site_admin': (request.user.groups.filter(name='admin').exists() or
+                       request.user.is_superuser)
     }

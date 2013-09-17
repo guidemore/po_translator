@@ -781,12 +781,16 @@ class TestPermissions(TestMultiProjectPoTranslate):
     def setUp(self):
         super(TestPermissions, self).setUp()
 
-        for username in ['admin', 'user']:
+        for username in ['admin', 'user1', 'user2']:
             user = User.objects.create(username=username)
         self.user = User.objects.get(username='admin')
         for lang in ProjectLanguage.objects.all():
             proj = ProjectLanguage.objects.get(project_id=self.project.id, lang=lang.lang)
-            assign_perm('can_edit', self.user, proj)
+            assign_perm('can_read', self.user, proj)
+        self.user2 = User.objects.get(username='user2')
+        for lang in ProjectLanguage.objects.all():
+            proj = ProjectLanguage.objects.get(project_id=self.project.id, lang=lang.lang)
+            assign_perm('can_edit', self.user2, proj)
 
 
 class TestPermissionPoTrans(TestPermissions):
@@ -794,18 +798,24 @@ class TestPermissionPoTrans(TestPermissions):
         perms = get_all_permissions(self.project.id)
         for row in perms:
             if row['user'] == self.user.username:
+                self.assertTrue(row['can_read'])
+            else:
+                self.assertFalse(row['can_read'])
+        for row in perms:
+            if row['user'] == self.user2.username:
                 self.assertTrue(row['can_change'])
             else:
                 self.assertFalse(row['can_change'])
+
 
     def test_check_perms(self):
         last_set = Set.objects.filter(
             project_id=self.project.id).order_by('-id')[0]
         message_to_edit = SetMessage.objects.filter(lang=self.project_language.id,
                                                     message_set=last_set)[0]
-        self.assertTrue(user_has_perm(self.user.id, message_to_edit.id))
-        user2 = User.objects.get(username='user')
-        self.assertFalse(user_has_perm(user2.id, message_to_edit.id))
+        self.assertTrue(user_has_perm(self.user2.id, message_to_edit.id))
+        user1 = User.objects.get(username='user1')
+        self.assertFalse(user_has_perm(user1.id, message_to_edit.id))
 
 
 class TestExportPoFile(TestPoTranslate):

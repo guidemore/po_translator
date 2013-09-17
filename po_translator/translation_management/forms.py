@@ -108,3 +108,4 @@ class ProjectForm(forms.Form):
 class AddPermission(forms.Form):
     lang = forms.DecimalField()
     user = forms.DecimalField()
+    permission = forms.CharField()

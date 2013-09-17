@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, remove_perm
 
 from po_translator.translation_management import data_processors
 
@@ -15,7 +15,7 @@ from po_translator.translation_management import data_processors
 from po_translator.translation_management.data_processors import (po, csv_file, android_xml)
 
 from .models import (Language, Project, Set, SetMessage, SetList, ProjectLanguage)
-from .utils import (get_message_list, import_po_file, save_same,
+from .utils import (get_message_list, import_po_file, save_same, site_admin,
                     save_same_target, save_new, show_prev, delete_last,
                     get_all_permissions, user_has_perm, get_sections_info)
 from .forms import PoFileForm, MessageForm, ProjectForm, AddPermission
@@ -49,13 +49,18 @@ def project(request, project, lang_id=None):
     if not lang_id:
         return redirect('project', project_id=project.id, lang_id=project_language.id)
 
+    current_proj = ProjectLanguage.objects.get(project=project, lang=Language.objects.get(id=lang_id))
+    can_edit = site_admin(request.user) or request.user.has_perm('can_edit', current_proj)
+    can_read = can_edit or request.user.has_perm('can_read', current_proj)
+    if not can_read:
+        django_messages.error(request, _("You haven't permission for this language in this project"))
+        return redirect('home')
+    
     for k, v in {'cur_section': '__none', 'translated': 'False'}.items():
         redirect_response = _set_var_to_path(request, k, v)
         if redirect_response:
             return redirect_response
-
     translated_filter = request.GET.get('translated', 'all')
-
     target_filters = {}
     stc_filters = {}
     section_filters = {}
@@ -99,7 +104,8 @@ def project(request, project, lang_id=None):
         'hide_subsection': not request.GET.get('cur_section'),
         'cur_section': request.GET.get('cur_section', None),
         'cur_subsection': request.GET.get('cur_subsection', None),
-        'show_subsection': True and 'cur_subsection' in request.GET
+        'show_subsection': True and 'cur_subsection' in request.GET,
+        'can_edit': can_edit
     }
 
     return context
@@ -148,7 +154,7 @@ def import_po_file_as_set(request, project, languages):
 @project_aware
 def add_target_language(request, project):
     user = User.objects.get(id=request.user.pk)
-    if not user.has_perm('can_add_projectlanguage'):
+    if not site_admin(user):
         django_messages.error(request, _("You can't add project language"))
         return redirect('home')
 
@@ -167,7 +173,7 @@ def add_target_language(request, project):
 
 def create_new_set(request, project):
     user = User.objects.get(id=request.user.pk)
-    if not user.has_perm('can_add_projectlanguage'):
+    if not site_admin(user):
         django_messages.error(request, _("You can't add project language"))
         return redirect('home')
 
@@ -214,7 +220,7 @@ def export(request, project, lang_id=None):
 def views_sets(request, project):
     user = User.objects.get(id=request.user.pk)
     can_delete = False
-    if user.has_perm('can_add_projectlanguage'):
+    if site_admin(user):
         can_delete = True
     if request.method == 'POST' and can_delete:
         delete_last(project.id)
@@ -268,7 +274,7 @@ def logout(request):
 def views_permissions(request, project):
     user = User.objects.get(id=request.user.pk)
     can_add = False
-    if user.has_perm('can_add_projectlanguage'):
+    if site_admin(user):
         can_add = True
     if request.method == 'POST' and can_add:
         form = AddPermission(request.POST)
@@ -278,7 +284,20 @@ def views_permissions(request, project):
             lang = Language.objects.get(id=lang_id)
             user = User.objects.get(id=user_id)
             project_language = ProjectLanguage.objects.get(project_id=project.id, lang=lang)
-            assign_perm('can_edit', user, project_language)
+            project_source_language = Language.objects.get(project=project)
+            project_source = ProjectLanguage.objects.get(project_id=project.id,
+                                                         lang=project_source_language)
+            if 'can_change' in request.POST['permission']:
+                assign_perm('can_edit', user, project_language)
+                assign_perm('can_read', user, project_language)
+                assign_perm('can_read', user, project_source)
+            elif 'can_read' in request.POST['permission']:
+                assign_perm('can_read', user, project_language)
+                remove_perm('can_edit', user, project_language)
+                assign_perm('can_read', user, project_source)
+            elif 'del_perm' in request.POST['permission']:
+                remove_perm('can_edit', user, project_language)
+                remove_perm('can_read', user, project_language)
     else:
         form = AddPermission()
     permissions = get_all_permissions(project.id)

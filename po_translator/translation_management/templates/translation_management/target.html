@@ -18,7 +18,7 @@
                             {% trans "Cancel" %}
                         </button>
                     </div>
-                    {% if perms.potrsetmessage.edit_message %}
+                    {% if can_edit %}
                         <div class="btn-group">
                             <button class="btn btn-info same_target" type="submit" name="action" value="same_target">
                                 {% trans "Save" %}
@@ -29,9 +29,11 @@
             </div>
         </div>
         <input type="hidden" name="id_of_message"/>
-        <button class="btn btn-link btn-mini btn-block show_prev" type="submit" name="action" value="show_prev">
-            {% trans "Show Previous" %}
-        </button>
+        {% if can_edit %}
+            <button class="btn btn-link btn-mini btn-block show_prev" type="submit" name="action" value="show_prev">
+                {% trans "Show Previous" %}
+            </button>
+        {% endif %}
     </form>
 </div>
 <div id="table">

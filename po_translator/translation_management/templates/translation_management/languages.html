@@ -1,7 +1,7 @@
 {% load i18n %}
 {% if sets %}
     <div id="table">
-        {% if perms.projectlanguage.can_add_projectlanguage %}
+        {% if site_admin %}
             <a href="{% url 'add_target_language' project_id=project_id %}">
                 <button class="btn btn-success">
                     <i class="icon-plus icon-white"></i> {% trans "Add new language" %}

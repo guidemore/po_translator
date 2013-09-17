@@ -260,17 +260,23 @@ def get_all_permissions(project_id):
                 {
                     'lang': lang.lang.name,
                     'user': user.username,
-                    'can_change': user.has_perm('can_edit', project)
+                    'can_change': user.has_perm('can_edit', project),
+                    'can_read': user.has_perm('can_read', project),
+                    'site_admin': site_admin(user)
                 }
             )
     return result
 
+def site_admin(user):
+    if user.groups.filter(name='admin').exists() or user.is_superuser:
+        return True
+    return False
 
 def user_has_perm(user_id, id_of_message):
     mes = SetMessage.objects.get(id=id_of_message)
     project = ProjectLanguage.objects.get(project_id__id=mes.message_set.project.id, lang=mes.lang.id)
     user = User.objects.get(id=user_id)
-    if user.has_perm('can_edit', project):
+    if user.has_perm('can_edit', project) or site_admin(user):
         return True
     else:
         return False
