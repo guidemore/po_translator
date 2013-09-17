@@ -248,6 +248,9 @@ def views_languages(request, project):
 
 @render_to_html('translation_management/add_project.html')
 def add_project(request):
+    if not site_admin(request.user):
+        django_messages.error(request, _("You can't add project language"))
+        return redirect('home')
     if request.method == 'POST':
         form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():

@@ -46,8 +46,10 @@
                                 {% for li in projects %}
                                     <li><a href="{% url 'cur_project' project_id=li.id %}"> {{ li.name }} </a></li>
                                 {% endfor %}
-                                <li class="divider"></li>
-                                <li><a href="{% url 'add_project' %}"> {% trans "Add project" %} </a></li>
+                                {% if site_admin %}
+                                    <li class="divider"></li>
+                                    <li><a href="{% url 'add_project' %}"> {% trans "Add project" %} </a></li>
+                                {% endif %}
                             </ul>
                         </li>
                         {% if project_id %}
