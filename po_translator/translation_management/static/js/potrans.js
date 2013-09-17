@@ -1,7 +1,6 @@
 function setQueryVariable(query, keyString, replaceString) {
-
-    var vars = Array();
-    var new_vars = Array();
+    var vars = [];
+    var new_vars = [];
     if (query)
         vars = query.split("&");
     var found = false;
@@ -31,7 +30,6 @@ function Truncate(str, maxLength) {
 }
 
 $(function () {
-
     $('<div id="ajax-busy"/>').hide().appendTo('body');
     $('#translateModal').modal('hide');
 
@@ -44,19 +42,18 @@ $(function () {
     });
 
     $(".target_clickable").click(function () {
-
         var selected_row = $(this).closest("tr");
         var source = selected_row.find('input[name="msg_source"]').attr('value');
         var target = selected_row.find('input[name="msg_target"]').attr('value');
         var id_to_modify = selected_row.find('input[name="id_of_message"]').attr('value');
-        var form = $("#translateModal")
+        var form = $("#translateModal");
         var message_textarea = form.find('textarea[name="msg_str"]');
 
         form.find('textarea[name="source"]').text(source);
         form.find('select[name="is_translated"]').val('true');
-        form.find('input[name="id_of_message"]').attr('value', id_to_modify)
+        form.find('input[name="id_of_message"]').attr('value', id_to_modify);
         form.find('.old_values').remove();
-        form.find('.show_prev').show()
+        form.find('.show_prev').show();
 
         $('#translateModal').modal("show");
 
@@ -88,7 +85,7 @@ $(function () {
     });
 
     $(".show_prev").click(function (event) {
-        event.preventDefault()
+        event.preventDefault();
         var form = $(this).closest("form");
         var url = form.attr('action');
         var token = form.find('input[name="csrfmiddlewaretoken"]').attr('value');
@@ -109,7 +106,7 @@ $(function () {
                 $('#ajax-busy').show()
             },
             success: function (data) {
-                $('#ajax-busy').hide()
+                $('#ajax-busy').hide();
                 form.find('.old_values').remove();
                 result = jQuery.parseJSON(data);
                 var previous_values = form.children('div').clone().appendTo(form);
@@ -119,17 +116,15 @@ $(function () {
                 form.find('.show_prev').hide()
             },
             error: function () {
-                $('#ajax-busy').hide()
+                $('#ajax-busy').hide();
                 alert('some wrong');
             }
         });
     });
 
     $(".same_target").click(function (event) {
-
-        event.preventDefault()
+        event.preventDefault();
         var form = $('.popup_form');
-        var prev_tr = $(this).closest("tr").prev()
         var url = form.find('form').attr('action');
         var token = form.find('input[name="csrfmiddlewaretoken"]').attr('value');
         var id_to_modify = form.find('input[name="id_of_message"]').attr('value');
@@ -153,7 +148,7 @@ $(function () {
                 $('#ajax-busy').show()
             },
             success: function (data) {
-                $('#ajax-busy').hide()
+                $('#ajax-busy').hide();
                 var result = jQuery.parseJSON(data);
                 if (result['saved']) {
                     // hide collapse and show with new value
@@ -162,7 +157,6 @@ $(function () {
                     if (is_trans == "True") {
                         selected_row.find('div[name="is_trans"]').append('<i class="icon-check"></i>');
                     }
-                    ;
                     selected_row.find('input[name="is_trans"]').attr('disabled', true);
                     selected_row.find('div[name="msg_target"]').text(Truncate(new_text, 45));
                     selected_row.find('input[name="msg_target"]').attr('value', new_text);
@@ -171,43 +165,37 @@ $(function () {
                 else {
                     alert(result['message']);
                 }
-                ;
-
             },
             error: function () {
-                $('#ajax-busy').hide()
+                $('#ajax-busy').hide();
                 alert('some wrong');
             }
         });
     });
 
     $(".inline_cancel").click(function (event) {
-
-        event.preventDefault()
+        event.preventDefault();
         $("#translateModal").dialog("hide");
 
     });
 
     $(".source_cancel").click(function (event) {
-
-        event.preventDefault()
+        event.preventDefault();
         $(".collapse_div").hide();
         $(".clickable").show()
 
     });
 
     $(".new").click(function (event) {
-
-        event.preventDefault()
+        event.preventDefault();
         var form = $(this).closest("form");
-        var prev_tr = $(this).closest("tr")
-        var collapse_div = prev_tr.find('div[name="collapse_div"]')
-        var clickable_div = prev_tr.find('div[name="clickable"]')
+        var prev_tr = $(this).closest("tr");
+        var collapse_div = prev_tr.find('div[name="collapse_div"]');
+        var clickable_div = prev_tr.find('div[name="clickable"]');
         var url = form.attr('action');
         var token = form.find('input[name="csrfmiddlewaretoken"]').attr('value');
         var id_to_modify = form.find('input[name="id_of_message"]').attr('value');
         var new_text = form.find('textarea[name="msg_str"]').val();
-
 
         $.ajax({
             type: "POST",
@@ -223,10 +211,10 @@ $(function () {
                 $('#ajax-busy').show()
             },
             success: function (data) {
-                $('#ajax-busy').hide()
+                $('#ajax-busy').hide();
                 var result = jQuery.parseJSON(data);
                 if (result['saved']) {
-                    prev_tr.find('div[name="msg_source"]').text(Truncate(new_text, 60))
+                    prev_tr.find('div[name="msg_source"]').text(Truncate(new_text, 60));
                     form.find('textarea[name="msg_str"]').text(new_text);
                     clickable_div.show();
                     collapse_div.hide();
@@ -234,26 +222,24 @@ $(function () {
                 else {
                     alert(result['message']);
                 }
-                ;
             },
             error: function () {
-                $('#ajax-busy').hide()
+                $('#ajax-busy').hide();
                 alert('some wrong');
             }
         });
     });
 
     $(".same").click(function (event) {
-
-        event.preventDefault()
+        event.preventDefault();
         var form = $(this).closest("form");
-        var prev_tr = $(this).closest("tr")
+        var prev_tr = $(this).closest("tr");
         var url = form.attr('action');
         var token = form.find('input[name="csrfmiddlewaretoken"]').attr('value');
         var id_to_modify = form.find('input[name="id_of_message"]').attr('value');
         var new_text = form.find('textarea[name="msg_str"]').val();
-        var collapse_div = prev_tr.find('div[name="collapse_div"]')
-        var clickable_div = prev_tr.find('div[name="clickable"]')
+        var collapse_div = prev_tr.find('div[name="collapse_div"]');
+        var clickable_div = prev_tr.find('div[name="clickable"]');
 
         $.ajax({
             type: "POST",
@@ -269,10 +255,10 @@ $(function () {
                 $('#ajax-busy').show()
             },
             success: function (data) {
-                $('#ajax-busy').hide()
+                $('#ajax-busy').hide();
                 var result = jQuery.parseJSON(data);
                 if (result['saved']) {
-                    prev_tr.find('div[name="msg_source"]').text(Truncate(new_text, 60))
+                    prev_tr.find('div[name="msg_source"]').text(Truncate(new_text, 60));
                     form.find('textarea[name="msg_str"]').text(new_text);
 
                     clickable_div.show();
@@ -281,10 +267,9 @@ $(function () {
                 else {
                     alert(result['message']);
                 }
-                ;
             },
             error: function () {
-                $('#ajax-busy').hide()
+                $('#ajax-busy').hide();
                 alert('some wrong');
             }
         });
@@ -294,9 +279,8 @@ $(function () {
         $(".sel_subsection").hide();
 
     $(".section").change(function (event) {
-
         var newValue_section = $(".section").val();
-        var url = document.location.pathname + 'get_subsection'
+        var url = document.location.pathname + 'get_subsection';
         $.ajax({
             url: url,
             data: {
@@ -305,18 +289,16 @@ $(function () {
             beforeSend: function () {
                 $('#ajax-busy').show()
             },
-
             success: function (data) {
-
-                $('#ajax-busy').hide()
+                $('#ajax-busy').hide();
                 $('option', $(".sel_subsection")).remove();
                 var newOption = document.createElement("OPTION");
                 newOption.text = "Show all";
                 newOption.value = "";
-                $(".sel_subsection").append(newOption)
+                $(".sel_subsection").append(newOption);
                 var result = jQuery.parseJSON(data);
                 for (var i = 0; i < result.length; i++) {
-                    var newOption = document.createElement("OPTION");
+                    newOption = document.createElement("OPTION");
                     newOption.text = result[i];
                     newOption.value = result[i];
                     $(".sel_subsection").append(newOption)
@@ -328,11 +310,9 @@ $(function () {
                 }
             },
             error: function () {
-                $('#ajax-busy').hide()
+                $('#ajax-busy').hide();
                 alert('some wrong');
             }
         });
-
     });
-
 });

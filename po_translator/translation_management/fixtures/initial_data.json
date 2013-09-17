@@ -34,15 +34,7 @@
         "model": "translation_management.language",
         "fields": {
             "code": "ru",
-            "name": "\u0420\u0443\u0441\u0441\u043a\u0438\u0439"
-        }
-    },
-    {
-        "pk": 3,
-        "model": "translation_management.language",
-        "fields": {
-            "code": "sp",
-            "name": "Spanish"
+            "name": "Russian"
         }
     },
     {
