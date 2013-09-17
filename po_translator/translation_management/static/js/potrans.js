@@ -11,11 +11,11 @@ function setQueryVariable(query, keyString, replaceString) {
             vars[i] = pair[0] + "=" + encodeURIComponent(replaceString);
             found = true;
         }
-        if ((keyString == 'cur_section') && (pair[0] == 'cur_subsection')){
+        if ((keyString == 'cur_section') && (pair[0] == 'cur_subsection')) {
             vars[i] = pair[0] + "=" + "";
         }
     }
-    if (!found){
+    if (!found) {
         vars.push(keyString + "=" + encodeURIComponent(replaceString));
     }
     return vars.join("&")
@@ -30,60 +30,56 @@ function Truncate(str, maxLength) {
     return str;
 }
 
-$(function(){
+$(function () {
 
     $('<div id="ajax-busy"/>').hide().appendTo('body');
-    $('.popup_form').hide();
+    $('#translateModal').modal('hide');
 
-    $('.popup_form').dialog({ 
-        autoOpen: false,
-        resizable: false,
-        modal: true,
-        width:'80%'
-    });
-
-    $(".clickable").click(function() {
+    $(".clickable").click(function () {
         $(".collapse_div.row").hide();
         $(".clickable, .show_prev").show();
         $('.old_values').remove();
         $(this).next().show();
         $(this).hide()
     });
-    
-    $(".target_clickable").click(function() {
-        
+
+    $(".target_clickable").click(function () {
+
         var selected_row = $(this).closest("tr");
         var source = selected_row.find('input[name="msg_source"]').attr('value');
         var target = selected_row.find('input[name="msg_target"]').attr('value');
         var id_to_modify = selected_row.find('input[name="id_of_message"]').attr('value');
-        var form = $(".popup_form")
+        var form = $("#translateModal")
+        var message_textarea = form.find('textarea[name="msg_str"]');
 
-        form.find('div[name="source"]').text(source);
+        form.find('textarea[name="source"]').text(source);
         form.find('select[name="is_translated"]').val('true');
-        form.find('textarea[name="msg_str"]').text(target);
-        form.find('textarea[name="msg_str"]').val(target);
         form.find('input[name="id_of_message"]').attr('value', id_to_modify)
         form.find('.old_values').remove();
         form.find('.show_prev').show()
 
-        form.dialog("open");
+        $('#translateModal').modal("show");
+
+        // set focus to the end of textarea
+        message_textarea.focus();
+        message_textarea.text(target);
     });
-    
-    $(".permis").click(function() {
+
+    $(".permis").click(function () {
         $(".collapse_perm").show();
         $(".permis").hide();
 
     });
 
-    $(".perm_cancel").click(function() {
+    $(".perm_cancel").click(function () {
         $(".collapse_perm").hide();
         $(".permis").show();
 
     });
 
-    $('#file').closest('form').hide(); 
-    $(".immediate-upload").click(function() {
-	$('#file').change(function(){
+    $('#file').closest('form').hide();
+    $(".immediate-upload").click(function () {
+        $('#file').change(function () {
             var self = $(this);
             self.closest('form').show();
             self.closest('form').submit();
@@ -91,15 +87,13 @@ $(function(){
         $('#file').click();
     });
 
-    $(".show_prev").click(function(event) {
-
+    $(".show_prev").click(function (event) {
         event.preventDefault()
         var form = $(this).closest("form");
         var url = form.attr('action');
         var token = form.find('input[name="csrfmiddlewaretoken"]').attr('value');
-        var id_to_modify = form.find('input[name="id_of_message"]').attr('value');;
+        var id_to_modify = form.find('input[name="id_of_message"]').attr('value');
         var new_text = form.find('textarea[name="msg_str"]').text();
-
 
         $.ajax({
             type: "POST",
@@ -111,40 +105,37 @@ $(function(){
                 action: 'show_prev',
                 csrfmiddlewaretoken: token
             },
-            beforeSend: function() {
+            beforeSend: function () {
                 $('#ajax-busy').show()
-            },            
-            success: function(data)
-            {
+            },
+            success: function (data) {
                 $('#ajax-busy').hide()
                 form.find('.old_values').remove();
                 result = jQuery.parseJSON(data);
                 var previous_values = form.children('div').clone().appendTo(form);
                 previous_values.addClass('old_values muted');
-                previous_values.find('div.source').text(result.prev_source);
-                previous_values.find('div.target').text(result.prev_target);
-                previous_values.find('div.translated, div.id_of_message').text('');
+                previous_values.find('.source').text(result.prev_source);
+                previous_values.find('.target').text(result.prev_target).attr('disabled', 'disabled');
                 form.find('.show_prev').hide()
             },
-            error:  function()
-            {
+            error: function () {
                 $('#ajax-busy').hide()
                 alert('some wrong');
             }
         });
     });
 
-    $(".same_target").click(function(event) {
+    $(".same_target").click(function (event) {
 
         event.preventDefault()
-        var form = $(this).closest("form");
+        var form = $('.popup_form');
         var prev_tr = $(this).closest("tr").prev()
-        var url = form.attr('action');
+        var url = form.find('form').attr('action');
         var token = form.find('input[name="csrfmiddlewaretoken"]').attr('value');
         var id_to_modify = form.find('input[name="id_of_message"]').attr('value');
-        var is_trans = form.find('select').val();
+        var is_trans = $('#is_translated').val();
         var new_text = form.find('textarea[name="msg_str"]').val();
-        var selected_row = $('tr').find('input[value='+id_to_modify+']').closest("tr");
+        var selected_row = $('tr').find('input[value=' + id_to_modify + ']').closest("tr");
 
         $.ajax({
             type: "POST",
@@ -157,48 +148,47 @@ $(function(){
                 is_translated: is_trans,
                 csrfmiddlewaretoken: token
             },
-            beforeSend: function() {
-                $(".popup_form").dialog("close");
+            beforeSend: function () {
+                $("#translateModal").modal("hide");
                 $('#ajax-busy').show()
             },
-            success: function(data)
-            {
+            success: function (data) {
                 $('#ajax-busy').hide()
                 var result = jQuery.parseJSON(data);
                 if (result['saved']) {
-                 // hide collapse and show with new value
+                    // hide collapse and show with new value
                     selected_row.find('input[name="is_trans"]').attr('disabled', false);
                     selected_row.find('div[name="is_trans"]').children().remove();
                     if (is_trans == "True") {
                         selected_row.find('div[name="is_trans"]').append('<i class="icon-check"></i>');
-                        }
-                        ;
+                    }
+                    ;
                     selected_row.find('input[name="is_trans"]').attr('disabled', true);
                     selected_row.find('div[name="msg_target"]').text(Truncate(new_text, 45));
                     selected_row.find('input[name="msg_target"]').attr('value', new_text);
                     selected_row.find('input[name="msg_target"]').text(new_text);
                 }
                 else {
-                    alert(result['message']);   
-                    };
+                    alert(result['message']);
+                }
+                ;
 
             },
-            error:  function()
-            {
+            error: function () {
                 $('#ajax-busy').hide()
                 alert('some wrong');
             }
         });
     });
 
-    $(".inline_cancel").click(function(event) {
+    $(".inline_cancel").click(function (event) {
 
         event.preventDefault()
-        $(".popup_form").dialog("close");
+        $("#translateModal").dialog("hide");
 
     });
 
-    $(".source_cancel").click(function(event) {
+    $(".source_cancel").click(function (event) {
 
         event.preventDefault()
         $(".collapse_div").hide();
@@ -206,7 +196,7 @@ $(function(){
 
     });
 
-    $(".new").click(function(event) {
+    $(".new").click(function (event) {
 
         event.preventDefault()
         var form = $(this).closest("form");
@@ -229,31 +219,31 @@ $(function(){
                 action: 'new',
                 csrfmiddlewaretoken: token
             },
-            beforeSend: function() {
+            beforeSend: function () {
                 $('#ajax-busy').show()
-            },            
-            success: function(data)
-            {
+            },
+            success: function (data) {
                 $('#ajax-busy').hide()
                 var result = jQuery.parseJSON(data);
                 if (result['saved']) {
                     prev_tr.find('div[name="msg_source"]').text(Truncate(new_text, 60))
                     form.find('textarea[name="msg_str"]').text(new_text);
                     clickable_div.show();
-                    collapse_div.hide();}
+                    collapse_div.hide();
+                }
                 else {
-                 alert(result['message']);   
-                };
+                    alert(result['message']);
+                }
+                ;
             },
-            error:  function()
-            {
+            error: function () {
                 $('#ajax-busy').hide()
                 alert('some wrong');
             }
         });
     });
 
-    $(".same").click(function(event) {
+    $(".same").click(function (event) {
 
         event.preventDefault()
         var form = $(this).closest("form");
@@ -275,11 +265,10 @@ $(function(){
                 action: 'same',
                 csrfmiddlewaretoken: token
             },
-            beforeSend: function() {
+            beforeSend: function () {
                 $('#ajax-busy').show()
-            },            
-            success: function(data)
-            {
+            },
+            success: function (data) {
                 $('#ajax-busy').hide()
                 var result = jQuery.parseJSON(data);
                 if (result['saved']) {
@@ -287,13 +276,14 @@ $(function(){
                     form.find('textarea[name="msg_str"]').text(new_text);
 
                     clickable_div.show();
-                    collapse_div.hide();}
+                    collapse_div.hide();
+                }
                 else {
-                 alert(result['message']);   
-                };
+                    alert(result['message']);
+                }
+                ;
             },
-            error:  function()
-            {
+            error: function () {
                 $('#ajax-busy').hide()
                 alert('some wrong');
             }
@@ -303,28 +293,27 @@ $(function(){
     if ($(".sel_subsection").find('option').length < 2)
         $(".sel_subsection").hide();
 
-    $(".section").change(function(event) {
+    $(".section").change(function (event) {
 
         var newValue_section = $(".section").val();
-        var url = document.location.pathname+'get_subsection'
+        var url = document.location.pathname + 'get_subsection'
         $.ajax({
             url: url,
             data: {
                 cur_section: newValue_section
             },
-            beforeSend: function() {
+            beforeSend: function () {
                 $('#ajax-busy').show()
-            }, 
+            },
 
-            success: function(data)
-            {
+            success: function (data) {
 
                 $('#ajax-busy').hide()
                 $('option', $(".sel_subsection")).remove();
                 var newOption = document.createElement("OPTION");
-                    newOption.text = "Show all";
-                    newOption.value = "";
-                    $(".sel_subsection").append(newOption)
+                newOption.text = "Show all";
+                newOption.value = "";
+                $(".sel_subsection").append(newOption)
                 var result = jQuery.parseJSON(data);
                 for (var i = 0; i < result.length; i++) {
                     var newOption = document.createElement("OPTION");
@@ -332,14 +321,13 @@ $(function(){
                     newOption.value = result[i];
                     $(".sel_subsection").append(newOption)
                 }
-                if (result.length){
+                if (result.length) {
                     $(".sel_subsection").show();
                 } else {
                     $(".sel_subsection").hide();
                 }
             },
-            error:  function()
-            {
+            error: function () {
                 $('#ajax-busy').hide()
                 alert('some wrong');
             }

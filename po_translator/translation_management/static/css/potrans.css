@@ -12,3 +12,15 @@
     height: 100%;
     background: black url('../images/loading.gif') no-repeat center;
 }
+
+.popup_form .targetMessage {
+    margin-top: 10px;
+}
+
+.popup_form textarea {
+    width: 515px;
+}
+
+.translated button {
+    margin-top: -10px;
+}

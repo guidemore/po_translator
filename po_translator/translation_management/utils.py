@@ -220,7 +220,7 @@ def save_new(msg_id, new_msg):
 
 def show_prev(msg_id):
     message = SetMessage.objects.get(id=msg_id)
-    project_id = message.message_set.project
+    project = message.message_set.project
     last_set = message.message_set
     lang = message.lang
     project_language = message.message_set.project.lang
@@ -228,9 +228,7 @@ def show_prev(msg_id):
 
     for language, resp_field in [(project_language, 'prev_source'), (lang, 'prev_target')]:
         prev_value = (SetMessage.objects
-                      .filter(msgid=message.msgid,
-                              message_set__project_id=project_id,
-                              lang=language)
+                      .filter(msgid=message.msgid, message_set__project=project, lang=language)
                       .exclude(message_set=last_set)
                       .order_by('-id'))
         prev_value = next(iter(prev_value), None)
