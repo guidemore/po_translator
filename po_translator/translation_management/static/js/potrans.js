@@ -174,17 +174,10 @@ $(function () {
         });
     });
 
-    $(".inline_cancel").click(function (event) {
-        event.preventDefault();
-        $("#translateModal").dialog("hide");
-
-    });
-
     $(".source_cancel").click(function (event) {
         event.preventDefault();
         $(".collapse_div").hide();
         $(".clickable").show()
-
     });
 
     $(".new").click(function (event) {
