@@ -60,6 +60,7 @@ $(function () {
         // set focus to the end of textarea
         message_textarea.focus();
         message_textarea.text(target);
+        message_textarea.val(target);
     });
 
     $(".permis").click(function () {
