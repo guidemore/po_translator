@@ -50,7 +50,7 @@ $(function () {
         var message_textarea = form.find('textarea[name="msg_str"]');
 
         form.find('textarea[name="source"]').text(source);
-        form.find('select[name="is_translated"]').val('true');
+        form.find('select[name="is_translated"]').val('True');
         form.find('input[name="id_of_message"]').attr('value', id_to_modify);
         form.find('.old_values').remove();
         form.find('.show_prev').show();
