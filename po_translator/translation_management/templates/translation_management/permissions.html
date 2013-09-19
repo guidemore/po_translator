@@ -62,7 +62,7 @@
             <form action="{% url 'views_permissions' project_id=project_id %}" method="post">{% csrf_token %}
                 <div class="row-fluid">
                     <div class="span4">
-                        <input type="hidden" name="proj" value="{{ project_id }}"/>
+                        <input type="hidden" name="project" value="{{ project_id }}"/>
                         {% trans "Select language" %} <br/>
                         <select name='lang'>
                             <option value="__none">{% trans "Select value" %}</option>
