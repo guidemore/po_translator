@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<div id="table">
+<div id="table" class="source_table">
     <table class="table table-striped table-hover" style="cursor: pointer;">
         <thead>
             <tr class="row">
@@ -24,11 +24,11 @@
                             <form action="{% url 'update_msg' %}" method="post">{% csrf_token %}
                                 <div class="span4"> {{ row.msg_id }} </div>
                                 <div class="span7">
-                                    <textarea name="msg_str" rows="4" cols="50">{{ row.msg_source }}</textarea>
+                                    <textarea name="msg_str" rows="4">{{ row.msg_source }}</textarea>
                                     <input type="hidden" name="id_of_message" value="{{ row.id }}"/>
                                     <div class="btn-toolbar" style="margin: 0;">
                                         <div class="btn-group">
-                                            <button class="btn btn-info source_cancel">
+                                            <button class="btn source_cancel">
                                                 {% trans "Cancel" %}
                                             </button>
                                         </div>
@@ -39,7 +39,7 @@
                                                 </button>
                                             </div>
                                             <div class="btn-group">
-                                                <button class="btn btn-info same" type="submit" name="action" value="same">
+                                                <button class="btn btn-primary same" type="submit" name="action" value="same">
                                                     {% trans "Save: Same meaning" %}
                                                 </button>
                                             </div>

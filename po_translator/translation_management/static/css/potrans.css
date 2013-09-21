@@ -24,3 +24,11 @@
 .translated button {
     margin-top: -10px;
 }
+
+.source_table textarea {
+    width: 580px;
+}
+
+.source_table button {
+    margin-right: 10px;
+}
