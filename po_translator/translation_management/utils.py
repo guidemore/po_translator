@@ -249,10 +249,10 @@ def delete_last(project_id):
 
 
 def get_all_permissions(project_id):
-    project_languages = ProjectLanguage.objects.filter(project_id__id=project_id)
+    project_languages = ProjectLanguage.objects.filter(project__id=project_id)
     result = []
     for lang in project_languages:
-        project = ProjectLanguage.objects.get(project_id__id=project_id, lang=lang.lang.id)
+        project = ProjectLanguage.objects.get(project__id=project_id, lang=lang.lang.id)
         for user in User.objects.all():
             result.append(
                 {
@@ -272,7 +272,7 @@ def site_admin(user):
 
 def user_has_perm(user_id, id_of_message):
     mes = SetMessage.objects.get(id=id_of_message)
-    project = ProjectLanguage.objects.get(project_id__id=mes.message_set.project.id, lang=mes.lang.id)
+    project = ProjectLanguage.objects.get(project__id=mes.message_set.project.id, lang=mes.lang.id)
     user = User.objects.get(id=user_id)
     if user.has_perm('can_edit', project) or site_admin(user):
         return True
