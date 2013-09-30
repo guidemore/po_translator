@@ -1,4 +1,6 @@
+import StringIO
 import datetime
+import zipfile
 
 import polib
 
@@ -14,8 +16,11 @@ class DataProcessor(base.DataProcessor):
             raise DataParsingError(str(e))
         return ({"msgid": i.msgid, "msgstr": i.msgstr} for i in messages)
 
-    def export_file(self, dataset):
+    def export_file(self, dataset, language_code=None):
+        io = StringIO.StringIO()
+        archive = zipfile.ZipFile(io, 'w')
         po = polib.POFile()
+
         po.metadata = {
             'Project-Id-Version': '1.0',
             'PO-Revision-Date': datetime.datetime.now(),
@@ -27,4 +32,10 @@ class DataProcessor(base.DataProcessor):
         for row in dataset:
             entry = polib.POEntry(msgid=row['msg_id'], msgstr=row['msg_target'])
             po.append(entry)
-        return unicode(po)
+
+        archive.writestr('%s/LC_MESSAGES/django.po' % language_code, str(po))
+        archive.writestr('%s/LC_MESSAGES/django.mo' % language_code, po.to_binary())
+        archive.close()
+        io.seek(0)
+
+        return io

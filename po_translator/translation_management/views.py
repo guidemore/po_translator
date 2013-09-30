@@ -194,25 +194,27 @@ def create_new_set(request, project):
 
 @render_to_html('translation_management/project.html')
 @project_aware
-def export(request, project, lang_id=None):
+def export(request, project, language_id=None):
     if request.method == 'POST':
-        lang_id = int(request.POST['lang'])
+        language_id = int(request.POST['lang'])
 
-    cur_proj = project.id
-    if lang_id and ProjectLanguage.objects.filter(lang=lang_id, project_id=cur_proj).exists():
+    try:
+        project_language = ProjectLanguage.objects.get(lang=language_id, project_id=project.id)
 
-        dataset = get_message_list(cur_proj, lang_id)
+        dataset = get_message_list(project.id, language_id)
         for row in dataset:
             if not row['is_translated']:
                 row['msg_target'] = row['msg_source']
+
         processor = data_processors.get_data_processor(project.project_type.name)
-        export_data = processor.export_file(dataset)
+        export_data = processor.export_file(dataset, project_language.lang.code)
 
         response = HttpResponse(export_data, content_type='text/plain')
-        response['Content-Disposition'] = 'attachment; filename="django.po"'
+        response['Content-Disposition'] = 'attachment; filename="%s.zip"' % project_language.lang.code
         return response
-    errors = _('Set does not exist for this language')
-    return {'errors': errors, 'show_export': True}
+    except ProjectLanguage.DoesNotExist:
+        errors = _('Set does not exist for this language')
+        return {'errors': errors, 'show_export': True}
 
 
 @render_to_html('translation_management/project.html')

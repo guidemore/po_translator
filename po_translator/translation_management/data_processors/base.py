@@ -18,7 +18,7 @@ class DataProcessor:
         pass
 
     @abstractmethod
-    def export_file(self, dataset):
+    def export_file(self, dataset, language_code=None):
         """
         get list of dictionaries with message description
             {'msg_target': msg_target,
