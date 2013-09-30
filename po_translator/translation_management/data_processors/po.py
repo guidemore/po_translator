@@ -33,8 +33,8 @@ class DataProcessor(base.DataProcessor):
             entry = polib.POEntry(msgid=row['msg_id'], msgstr=row['msg_target'])
             po.append(entry)
 
-        archive.writestr('%s/LC_MESSAGES/django.po' % language_code, str(po))
-        archive.writestr('%s/LC_MESSAGES/django.mo' % language_code, po.to_binary())
+        archive.writestr('locale/%s/LC_MESSAGES/django.po' % language_code, str(po))
+        archive.writestr('locale/%s/LC_MESSAGES/django.mo' % language_code, po.to_binary())
         archive.close()
         io.seek(0)
 

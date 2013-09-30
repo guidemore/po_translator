@@ -162,6 +162,7 @@ $(function () {
                     selected_row.find('div[name="msg_target"]').text(Truncate(new_text, 45));
                     selected_row.find('input[name="msg_target"]').attr('value', new_text);
                     selected_row.find('input[name="msg_target"]').text(new_text);
+                    selected_row.addClass('success');
                 }
                 else {
                     alert(result['message']);
