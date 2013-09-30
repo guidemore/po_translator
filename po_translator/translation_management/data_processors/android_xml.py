@@ -13,7 +13,7 @@ class DataProcessor(base.DataProcessor):
         return ({"msgid": i.attrib['name'], "msgstr": i.text or ''}
                 for i in messages.findall('.//string'))
 
-    def export_file(self, dataset):
+    def export_file(self, dataset, language_code=None):
         messages_file = ET.Element('resources')
         for row in dataset:
             string = ET.SubElement(messages_file, 'string', {'name': row['msg_id']})

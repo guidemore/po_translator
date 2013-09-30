@@ -1,5 +1,7 @@
+import StringIO
 import os
 from unittest import TestCase
+import zipfile
 
 from django.test.client import Client
 import polib
@@ -22,6 +24,14 @@ from po_translator.translation_management.data_processors import (po, csv_file, 
 from guardian.shortcuts import assign_perm
 
 PATH = os.path.dirname(__file__)
+
+
+class TestUtils():
+    def _get_po_file_from_zip(self, zip_content, language_code):
+        zip_io = StringIO.StringIO(zip_content)
+        zip_file = zipfile.ZipFile(zip_io, "r")
+        po = polib.pofile(zip_file.read('locale/%s/LC_MESSAGES/django.po' % language_code))
+        return po
 
 
 class TestPoTranslate(TestCase):
@@ -326,7 +336,7 @@ class TestFilterMessagesBySubstring(TestPoTranslate):
         self.assertEqual(set(i['msg_id'] for i in mes), {'mes.ssage1', 'messs.age4'})
 
 
-class TestDisplayDevs(TestPoTranslate):
+class TestDisplayDevs(TestPoTranslate, TestUtils):
     source_messages = [{'message1': 'message1',
                         'message2': 'message2',
                         'message3': 'message3',
@@ -400,8 +410,7 @@ class TestDisplayDevs(TestPoTranslate):
         user.set_password('Admin')
         user.save()
         client.login(username='Admin', password='Admin')
-        response = client.get('/project/%s/export/%s/' % (self.project.id,
-                                                          self.project_language.id))
+        response = client.get('/project/%s/export/%s/' % (self.project.id, self.project_language.id))
         messages = [{"msgid": i.attrib['name'], "msgstr": i.text or ''}
                     for i in ET.fromstring(
                 response.content).findall('.//string')]
@@ -464,27 +473,25 @@ class TestDisplayDevs(TestPoTranslate):
 
         response = client.get('/project/%s/export/%s/' % (self.project.id, self.project_language.id))
         self.assertEqual(response.status_code, 200)
-        po = polib.pofile(response.content)
+        po = self._get_po_file_from_zip(response.content, self.project_language.code)
+
         self.assertEqual(
-            len(SetMessage.objects.filter(
-                message_set__project_id=self.project.id,
-                lang=self.project_language.id)),
+            len(SetMessage.objects.filter(message_set__project_id=self.project.id, lang=self.project_language.id)),
             len(po.translated_entries()))
+
         new_lang = Language.objects.create(name='Russian', code='ru')
-        ProjectLanguage.objects.create(lang=new_lang, project=self.project)
+        new_project_language = ProjectLanguage.objects.create(lang=new_lang, project=self.project)
         path = os.path.join(PATH, 'data/django.po')
         import_po_file(path, self.project.id, self.project_language.id)
+
         response = client.get('/project/%s/export/%s/' % (self.project.id, new_lang.id))
-        po = polib.pofile(response.content)
-        all_messages = SetMessage.objects.filter(
-            message_set__project_id=self.project.id,
-            lang=new_lang.id)
+        po = self._get_po_file_from_zip(response.content, new_lang.code)
+        all_messages = SetMessage.objects.filter(message_set__project_id=self.project.id, lang=new_lang.id)
+
         self.assertEqual(len(all_messages), len(po.translated_entries()))
         self.assertTrue(
-            dict((i.msgid, unicode(i.msgstr, 'utf8')) for i in po) ==
-            dict((i.msgid, i.msgstr) for i in all_messages))
-        self.assertTrue(
-            set(i.msgid for i in all_messages) == set(i.msgid for i in po))
+            dict((i.msgid, unicode(i.msgstr, 'utf8')) for i in po) == dict((i.msgid, i.msgstr) for i in all_messages))
+        self.assertTrue(set(i.msgid for i in all_messages) == set(i.msgid for i in po))
 
     def test_export_po_file_with_empty_msgstr_in_target_lang(self):
         client = Client()
@@ -499,16 +506,14 @@ class TestDisplayDevs(TestPoTranslate):
         import_po_file(path, self.project.id, self.project_language.id)
         SetMessage.objects.filter(msgid='test.empty', lang=self.project.lang.id).update(msgstr='NonEmpty')
         response = client.get('/project/%s/export/%s/' % (self.project.id, new_lang.id))
-        po = polib.pofile(response.content)
-        all_messages = SetMessage.objects.filter(
-            message_set__project_id=self.project.id,
-            lang=self.project.lang.id)
+        po = self._get_po_file_from_zip(response.content, new_lang.code)
+        all_messages = SetMessage.objects.filter(message_set__project_id=self.project.id, lang=self.project.lang.id)
         self.assertFalse(SetMessage.objects.get(msgid='test.empty', lang=new_lang.id).msgstr)
         self.assertEqual(dict((i.msgid, unicode(i.msgstr, 'utf8')) for i in po)['test.empty'], 'NonEmpty')
 
         SetMessage.objects.filter(msgid='test.empty').update(is_translated=True)
         response = client.get('/project/%s/export/%s/' % (self.project.id, new_lang.id))
-        po = polib.pofile(response.content)
+        po = self._get_po_file_from_zip(response.content, new_lang.code)
         all_messages = SetMessage.objects.filter(message_set__project_id=self.project.id, lang=self.project.lang.id)
         self.assertFalse(SetMessage.objects.get(msgid='test.empty', lang=new_lang.id).msgstr)
         self.assertFalse(dict((i.msgid, unicode(i.msgstr, 'utf8')) for i in po)['test.empty'])
@@ -629,10 +634,8 @@ class TestDisplayDevs(TestPoTranslate):
 
 
 class TestMultiProjectPoTranslate(TestPoTranslate):
-    source_messages = [{'mes.sag.e1': 'message1',
-                        'mes.sag.e2': 'message2'}]
-    target_messages = [{'mes.sag.e1': 'message1',
-                        'mes.sag.e2': 'message2'}]
+    source_messages = [{'mes.sag.e1': 'message1', 'mes.sag.e2': 'message2'}]
+    target_messages = [{'mes.sag.e1': 'message1', 'mes.sag.e2': 'message2'}]
     new_source_messages = source_messages
     new_target_messages = target_messages
 
@@ -643,9 +646,7 @@ class TestMultiProjectPoTranslate(TestPoTranslate):
 
     def _add_project(self, project_name='new_project'):
         proj_type = ProjectType.objects.all()[0]
-        new_proj = Project.objects.create(name='proj_2',
-                                          project_type=proj_type,
-                                          lang=self.project_language)
+        new_proj = Project.objects.create(name='proj_2', project_type=proj_type, lang=self.project_language)
         ProjectLanguage.objects.create(lang=self.project_language, project=new_proj)
         return new_proj
 
@@ -818,7 +819,7 @@ class TestPermissionPoTrans(TestPermissions):
         self.assertFalse(user_has_perm(user1.id, message_to_edit.id))
 
 
-class TestExportPoFile(TestPoTranslate):
+class TestExportPoFile(TestPoTranslate, TestUtils):
     source_messages = [{'message1': 'message1_old',
                         'message3': 'message3',
                         'message5': 'message5',
@@ -844,13 +845,11 @@ class TestExportPoFile(TestPoTranslate):
         SetMessage.objects.all().update(is_translated=True)
         client.login(username='Admin', password='Admin')
 
-        response = client.get('/project/%s/export/%s/' % (self.project.id,
-                                                          self.project_language.id))
+        response = client.get('/project/%s/export/%s/' % (self.project.id, self.project_language.id))
         self.assertEqual(response.status_code, 200)
-        src_po = polib.pofile(response.content)
-        response = client.get('/project/%s/export/%s/' % (self.project.id,
-                                                          self.new_lang.id))
-        target_po = polib.pofile(response.content)
+        src_po = self._get_po_file_from_zip(response.content, self.project_language.code)
+        response = client.get('/project/%s/export/%s/' % (self.project.id, self.new_lang.id))
+        target_po = self._get_po_file_from_zip(response.content, self.new_lang.code)
         src_msgs = {i.msgid: i.msgstr for i in src_po.translated_entries()}
         self.assertEqual(src_msgs, self.source_messages[-1])
         new_msgs = {i.msgid: i.msgstr for i in target_po.translated_entries()}

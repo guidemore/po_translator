@@ -15,7 +15,7 @@ class DataProcessor(base.DataProcessor):
             raise DataParsingError(str(e))
         return ({"msgid": i[0], "msgstr": i[1] or ''} for i in messages)
 
-    def export_file(self, dataset):
+    def export_file(self, dataset, language_code=None):
         csvfile = cStringIO.StringIO()
         csv_writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
         csv_writer.writerow(['msg_id', 'msg_target'])

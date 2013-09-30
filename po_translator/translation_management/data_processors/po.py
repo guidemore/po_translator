@@ -1,6 +1,7 @@
 import StringIO
 import datetime
 import zipfile
+from django.core.files.base import ContentFile
 
 import polib
 
@@ -38,4 +39,4 @@ class DataProcessor(base.DataProcessor):
         archive.close()
         io.seek(0)
 
-        return io
+        return io.read()

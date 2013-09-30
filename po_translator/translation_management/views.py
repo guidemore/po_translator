@@ -209,7 +209,7 @@ def export(request, project, language_id=None):
         processor = data_processors.get_data_processor(project.project_type.name)
         export_data = processor.export_file(dataset, project_language.lang.code)
 
-        response = HttpResponse(export_data, content_type='text/plain')
+        response = HttpResponse(export_data, mimetype='application/zip')
         response['Content-Disposition'] = 'attachment; filename="%s.zip"' % project_language.lang.code
         return response
     except ProjectLanguage.DoesNotExist:
