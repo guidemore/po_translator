@@ -1,7 +1,7 @@
 {% load i18n %}
 {% if message_list|length %}
     <div class="total_messages alert alert-info">
-        {% trans "Was found " %} {{ message_list|length }} {% trans "messages" %}
+        {{ message_list|length }} {% trans "messages" %}
     </div>
 {% else %}
     {% ifnotequal cur_section "__none" %}
