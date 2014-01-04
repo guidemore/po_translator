@@ -28,10 +28,8 @@ def _update_message_query(initial_query, project_id, lang_id):
     new_query = initial_query.extra(tables=[ReadOnlyLastMessage._meta.db_table], where=extra_where)
     new_query = new_query.extra(
         tables=[SetList._meta.db_table],
-        where=['%s=%s' % (db_field(SetMessage, 'msgid'),
-                          db_field(SetList, 'msgid')),
-               '%s=%s' % (db_field(SetList, 'message_set_id'),
-                          cur_set.id)])
+        where=['%s=%s' % (db_field(SetMessage, 'msgid'), db_field(SetList, 'msgid')),
+               '%s=%s' % (db_field(SetList, 'message_set_id'), cur_set.id)])
     return new_query.filter(lang__in=[project_language, lang_id])
 
 
@@ -95,6 +93,7 @@ def get_message_list(project_id, lang_id, src_filters={}, target_filters={}):
             )
         if data.lang_id == project_language:
             msg_info.update({'msg_source': data.msgstr, 'id': data.id})
+
     messages = [i for i in res.values() if 'msg_target' in i]
     return messages
 
@@ -108,11 +107,8 @@ def _create_new_set(project, lang_id, translations_data):
         find = SetList.objects.filter(message_set__project_id=project.id, msgid=entry["msgid"]).exists()
         SetList.objects.create(message_set=potr_set, msgid=entry["msgid"], msgstr=entry["msgstr"])
         if not find:
-            SetMessage.objects.create(message_set=potr_set,
-                                      lang_id=lang_id,
-                                      msgid=entry["msgid"],
-                                      msgstr=entry["msgstr"],
-                                      is_translated=True)
+            SetMessage.objects.create(message_set=potr_set, lang_id=lang_id, msgid=entry["msgid"],
+                                      msgstr=entry["msgstr"], is_translated=True)
 
 
 def _import_new_lang(project, lang_id, translations_data):
@@ -120,33 +116,26 @@ def _import_new_lang(project, lang_id, translations_data):
 
     potr_import = Import.objects.create(message_set=potr_set, lang_id=lang_id)
     for entry in translations_data:
-        ImportMessage.objects.create(poimport=potr_import,
-                                     msgid=entry["msgid"],
-                                     msgstr=entry["msgstr"])
-        if not SetList.objects.filter(message_set__project_id=project.id,
-                                      message_set=potr_set.id,
-                                      msgid=entry["msgid"]).exists():
+        ImportMessage.objects.create(poimport=potr_import, msgid=entry["msgid"], msgstr=entry["msgstr"])
+        list_exist = SetList.objects.filter(message_set__project_id=project.id, message_set=potr_set.id, msgid=entry["msgid"]).exists()
+        if not list_exist:
             continue
-        SetMessage.objects.create(message_set=potr_set,
-                                  lang_id=lang_id,
-                                  msgid=entry["msgid"],
-                                  msgstr=entry["msgstr"],
+
+        SetMessage.objects.create(message_set=potr_set, lang_id=lang_id, msgid=entry["msgid"], msgstr=entry["msgstr"],
                                   is_translated=False)
+
     for msg in SetList.objects.filter(message_set__project_id=project.id, message_set=potr_set.id):
         if SetMessage.objects.filter(message_set=potr_set.id, lang_id=lang_id, msgid=msg.msgid).exists():
             continue
-        SetMessage.objects.create(message_set=potr_set,
-                                  lang_id=lang_id,
-                                  msgid=msg.msgid,
-                                  msgstr=msg.msgstr,
+
+        SetMessage.objects.create(message_set=potr_set, lang_id=lang_id, msgid=msg.msgid, msgstr=msg.msgstr,
                                   is_translated=False)
 
 
 @transaction.commit_on_success
 def import_po_file(message_file, project_id, lang_id):
-    ProjectLanguage.objects.get_or_create(
-        lang=Language.objects.get(id=lang_id),
-        project=Project.objects.get(id=project_id))
+    ProjectLanguage.objects.get_or_create(lang=Language.objects.get(id=lang_id),
+                                          project=Project.objects.get(id=project_id))
     project = Project.objects.filter(id=project_id)[0]
 
     data_processor = data_processors.get_data_processor(project.project_type.name)
@@ -177,14 +166,11 @@ def save_same_target(msg_id, new_msg, is_translated):
     project_id = new_item.message_set.project
     last_set = Set.objects.filter(project=project_id).order_by('-id')[0]
     if SetMessage.objects.filter(id=msg_id)[0].message_set == last_set:
-        (SetMessage.objects.filter(id=msg_id).update(msgstr=new_msg, is_translated=is_translated))
+        SetMessage.objects.filter(id=msg_id).update(msgstr=new_msg, is_translated=is_translated)
         for item in SetMessage.objects.filter(id=msg_id):
             item.save()
     else:
-        SetMessage.objects.create(message_set=last_set,
-                                  lang=new_item.lang,
-                                  msgid=new_item.msgid,
-                                  msgstr=new_msg,
+        SetMessage.objects.create(message_set=last_set, lang=new_item.lang, msgid=new_item.msgid, msgstr=new_msg,
                                   is_translated=is_translated)
     return {'saved': True}
 
@@ -194,24 +180,20 @@ def save_new(msg_id, new_msg):
     new_item = SetMessage.objects.filter(id=msg_id)[0]
     msgid = new_item.msgid
     project_id = new_item.message_set.project.id
+
     last_set = Set.objects.filter(project=project_id).order_by('-id')[0]
     obj, created = SetMessage.objects.get_or_create(message_set=last_set, lang=new_item.lang, msgid=msgid)
     obj.msgstr = new_msg
     obj.is_translated = True
     obj.save()
-    (SetMessage.objects.filter(message_set=last_set.id, msgid=msgid)
-     .exclude(id=msg_id)
-     .update(is_translated=False))
+
+    SetMessage.objects.filter(message_set=last_set.id, msgid=msgid).exclude(id=msg_id).update(is_translated=False)
     for lang in ProjectLanguage.objects.filter(project_id=project_id).exclude(lang=new_item.lang):
         target_msg_kwargs = dict(msgid=msgid, lang=lang.lang)
-        new_target, _ = SetMessage.objects.get_or_create(
-            message_set=last_set,
-            defaults={'msgstr': new_msg, 'is_translated': False},
-            **target_msg_kwargs)
-        previous_msgs = (SetMessage.objects
-                         .filter(**target_msg_kwargs)
-                         .exclude(id=msg_id)
-                         .order_by('-id'))
+        new_target, _ = SetMessage.objects.get_or_create(message_set=last_set,
+                                                         defaults={'msgstr': new_msg, 'is_translated': False},
+                                                         **target_msg_kwargs)
+        previous_msgs = SetMessage.objects.filter(**target_msg_kwargs).exclude(id=msg_id).order_by('-id')
         if previous_msgs.count() > 1:
             new_target.msgstr = previous_msgs[1].msgstr
             new_target.save()
@@ -228,9 +210,9 @@ def show_prev(msg_id):
 
     for language, resp_field in [(project_language, 'prev_source'), (lang, 'prev_target')]:
         prev_value = (SetMessage.objects
-                      .filter(msgid=message.msgid, message_set__project=project, lang=language)
-                      .exclude(message_set=last_set)
-                      .order_by('-id'))
+                                .filter(msgid=message.msgid, message_set__project=project, lang=language)
+                                .exclude(message_set=last_set)
+                                .order_by('-id'))
         prev_value = next(iter(prev_value), None)
         resp[resp_field] = (prev_value.msgstr if prev_value else 'no information')
     return resp
@@ -265,10 +247,12 @@ def get_all_permissions(project_id):
             )
     return result
 
+
 def site_admin(user):
     if user.groups.filter(name='admin').exists() or user.is_superuser:
         return True
     return False
+
 
 def user_has_perm(user_id, id_of_message):
     mes = SetMessage.objects.get(id=id_of_message)

@@ -62,30 +62,27 @@ def project(request, project, lang_id=None):
             return redirect_response
     translated_filter = request.GET.get('translated', 'all')
     target_filters = {}
-    stc_filters = {}
+    src_filters = {}
     section_filters = {}
+
     if 'cur_section' in request.GET:
         section_parts = ["%s." % request.GET.get('cur_section')] if request.GET.get('cur_section') else ['']
         if request.GET.get('cur_subsection'):
             section_parts.append("%s" % request.GET.get('cur_subsection'))
-        stc_filters['msgid__startswith'] = "".join(section_parts)
+        src_filters['msgid__startswith'] = "".join(section_parts)
         if request.GET['cur_section']:
             section_filters['msgid__startswith'] = section_parts[0]
 
-    search_substring = ''
-    if request.GET.get('substring'):
-        search_substring = request.GET['substring']
-        stc_filters[('msgid__icontains',
-                     'msgstr__icontains')] = request.GET['substring']
-        if stc_filters['msgid__startswith'] == '__none.':
-            del stc_filters['msgid__startswith']
+    search_substring = request.GET['substring']
+    if search_substring:
+        src_filters[('msgid__icontains', 'msgstr__icontains')] = search_substring
+        if src_filters['msgid__startswith'] == '__none.':
+            del src_filters['msgid__startswith']
 
     if translated_filter in ('True', 'False'):
         target_filters['is_translated'] = translated_filter == 'True'
-    messages = get_message_list(project.id,
-                                lang_id,
-                                target_filters=target_filters,
-                                src_filters=stc_filters)
+
+    messages = get_message_list(project.id, lang_id, target_filters=target_filters, src_filters=src_filters)
     sections, sub_sections = get_sections_info(project.id, lang_id, section_filters=section_filters)
     alter_languages = Language.objects.filter(projectlanguage__project_id=project).exclude(id=int(lang_id))
     context = {
@@ -177,8 +174,8 @@ def create_new_set(request, project):
         django_messages.error(request, _("You can't add project language"))
         return redirect('home')
 
-    proj_lang = project.lang.id
-    languages = Language.objects.filter(id=proj_lang)
+    project_lang = project.lang.id
+    languages = Language.objects.filter(id=project_lang)
 
     context = import_po_file_as_set(request, project, languages)
     if not isinstance(context, dict):
@@ -279,6 +276,7 @@ def views_permissions(request, project):
     can_add = False
     if site_admin(user):
         can_add = True
+
     if request.method == 'POST' and can_add:
         form = AddPermission(request.POST)
         if form.is_valid():
@@ -288,8 +286,8 @@ def views_permissions(request, project):
             user = User.objects.get(id=user_id)
             project_language = ProjectLanguage.objects.get(project_id=project.id, lang=lang)
             project_source_language = Language.objects.get(project=project)
-            project_source = ProjectLanguage.objects.get(project_id=project.id,
-                                                         lang=project_source_language)
+            project_source = ProjectLanguage.objects.get(project_id=project.id, lang=project_source_language)
+
             if 'can_change' in request.POST['permission']:
                 assign_perm('can_edit', user, project_language)
                 assign_perm('can_read', user, project_language)
@@ -303,6 +301,7 @@ def views_permissions(request, project):
                 remove_perm('can_read', user, project_language)
     else:
         form = AddPermission()
+
     permissions = get_all_permissions(project.id)
     users = User.objects.all()
     return {
