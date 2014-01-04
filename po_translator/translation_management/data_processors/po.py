@@ -2,6 +2,7 @@ import StringIO
 import datetime
 import zipfile
 from django.core.files.base import ContentFile
+from django.http import HttpResponse
 
 import polib
 
@@ -10,6 +11,7 @@ from . import base, data_processor_class, DataParsingError
 
 @data_processor_class('django')
 class DataProcessor(base.DataProcessor):
+
     def parse_file(self, data_file):
         try:
             messages = polib.pofile(data_file)
@@ -17,7 +19,7 @@ class DataProcessor(base.DataProcessor):
             raise DataParsingError(str(e))
         return ({"msgid": i.msgid, "msgstr": i.msgstr} for i in messages)
 
-    def export_file(self, dataset, language_code=None):
+    def export_file(self, dataset, language_code):
         io = StringIO.StringIO()
         archive = zipfile.ZipFile(io, 'w')
         po = polib.POFile()
@@ -39,4 +41,9 @@ class DataProcessor(base.DataProcessor):
         archive.close()
         io.seek(0)
 
-        return io.read()
+        data = io.read()
+
+        response = HttpResponse(data, mimetype='application/zip')
+        response['Content-Disposition'] = 'attachment; filename="%s.zip"' % language_code
+
+        return response

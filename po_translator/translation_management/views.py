@@ -12,7 +12,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 from po_translator.translation_management import data_processors
 
 # to register data processors import them
-from po_translator.translation_management.data_processors import (po, csv_file, android_xml)
+from po_translator.translation_management.data_processors import (po, csv_file, xml_file)
 
 from .models import (Language, Project, Set, SetMessage, SetList, ProjectLanguage)
 from .utils import (get_message_list, import_po_file, save_same, site_admin,
@@ -207,11 +207,9 @@ def export(request, project, language_id=None):
                 row['msg_target'] = row['msg_source']
 
         processor = data_processors.get_data_processor(project.project_type.name)
-        export_data = processor.export_file(dataset, project_language.lang.code)
+        export_response = processor.export_file(dataset, project_language.lang.code)
 
-        response = HttpResponse(export_data, mimetype='application/zip')
-        response['Content-Disposition'] = 'attachment; filename="%s.zip"' % project_language.lang.code
-        return response
+        return export_response
     except ProjectLanguage.DoesNotExist:
         errors = _('Set does not exist for this language')
         return {'errors': errors, 'show_export': True}

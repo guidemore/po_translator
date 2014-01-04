@@ -2,6 +2,7 @@ import csv
 import cStringIO
 
 from . import base, data_processor_class, DataParsingError
+from django.http import HttpResponse
 
 
 @data_processor_class('csv_file')
@@ -15,10 +16,16 @@ class DataProcessor(base.DataProcessor):
             raise DataParsingError(str(e))
         return ({"msgid": i[0], "msgstr": i[1] or ''} for i in messages)
 
-    def export_file(self, dataset, language_code=None):
+    def export_file(self, dataset, language_code):
         csvfile = cStringIO.StringIO()
         csv_writer = csv.writer(csvfile, quoting=csv.QUOTE_ALL)
         csv_writer.writerow(['msg_id', 'msg_target'])
         for row in dataset:
             csv_writer.writerow([row['msg_id'], row['msg_target']])
-        return csvfile.getvalue()
+
+        data = csvfile.getvalue()
+
+        response = HttpResponse(data, mimetype='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="%s.csv"' % language_code
+
+        return response

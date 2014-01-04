@@ -18,7 +18,7 @@ class DataProcessor:
         pass
 
     @abstractmethod
-    def export_file(self, dataset, language_code=None):
+    def export_file(self, dataset, language_code):
         """
         get list of dictionaries with message description
             {'msg_target': msg_target,
@@ -27,7 +27,7 @@ class DataProcessor:
              'msg_id': msg_id,
              'target_id': target_id,
              'id': id}
-        return string representation of file with translations
+        return file with translations in http response
         """
         pass
 

@@ -19,7 +19,7 @@ from po_translator.translation_management.utils import (
 
 
 # to register data processors import them
-from po_translator.translation_management.data_processors import (po, csv_file, android_xml)
+from po_translator.translation_management.data_processors import (po, csv_file, xml_file)
 
 from guardian.shortcuts import assign_perm
 
@@ -398,7 +398,7 @@ class TestDisplayDevs(TestPoTranslate, TestUtils):
     def test_import_export_android_file(self):
         from xml.etree import ElementTree as ET
 
-        self._setup_project('android_project', 'android', dict(name='English', code='en'))
+        self._setup_project('android_project', 'xml_file', dict(name='English', code='en'))
         path = os.path.join(PATH, 'data/android.xml')
         with open(path, 'r') as data_file:
             import_po_file(data_file.read(), self.project.id, self.project_language.id)
@@ -412,8 +412,7 @@ class TestDisplayDevs(TestPoTranslate, TestUtils):
         client.login(username='Admin', password='Admin')
         response = client.get('/project/%s/export/%s/' % (self.project.id, self.project_language.id))
         messages = [{"msgid": i.attrib['name'], "msgstr": i.text or ''}
-                    for i in ET.fromstring(
-                response.content).findall('.//string')]
+                    for i in ET.fromstring(response.content).findall('.//string')]
         self.assertEqual(len(messages), 5)
         mess_keys = [k['msgid'] for k in messages]
         for msg in SetMessage.objects.filter(message_set=last_set):

@@ -10,7 +10,7 @@
         "pk": 2,
         "model": "translation_management.projecttype",
         "fields": {
-            "name": "android"
+            "name": "xml_file"
         }
     },
     {
