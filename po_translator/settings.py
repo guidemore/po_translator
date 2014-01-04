@@ -28,7 +28,6 @@ DATABASES = {
 ALLOWED_HOSTS = []
 
 AUTHENTICATION_BACKENDS = (
-    'social_auth.backends.google.GoogleBackend',
     'django.contrib.auth.backends.ModelBackend', # default
     'guardian.backends.ObjectPermissionBackend',
 )
@@ -107,7 +106,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.contrib.messages.context_processors.messages',
     'po_translator.translation_management.context_processor.common_data',
-    'social_auth.context_processors.social_auth_by_type_backends',
 )
 
 # List of callables that know how to import templates from various sources.
@@ -151,26 +149,12 @@ INSTALLED_APPS = (
     'po_translator.translation_management',
     'debug_toolbar',
     'guardian',
-    'social_auth',
     'south'
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
-
-
-SOCIAL_AUTH_PIPELINE = (
-    'social_auth.backends.pipeline.social.social_auth_user',
-    'social_auth.backends.pipeline.associate.associate_by_email',
-    'social_auth.backends.pipeline.user.get_username',
-    'social_auth.backends.pipeline.user.create_user',
-    'social_auth.backends.pipeline.social.associate_user',
-    'social_auth.backends.pipeline.social.load_extra_data',
-    'social_auth.backends.pipeline.user.update_user_details'
-)
-
-SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email',]
 
 DEBUG_TOOLBAR_PANELS = (
     'debug_toolbar.panels.version.VersionDebugPanel',

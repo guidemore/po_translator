@@ -4,5 +4,4 @@ MySQL-python==1.2.4
 polib==1.0.3
 django-debug-toolbar==0.9.4
 django-guardian==1.1.1
-django-social-auth==0.7.28
 South==0.8.2
