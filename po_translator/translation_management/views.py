@@ -73,7 +73,7 @@ def project(request, project, lang_id=None):
         if request.GET['cur_section']:
             section_filters['msgid__startswith'] = section_parts[0]
 
-    search_substring = request.GET['substring']
+    search_substring = request.GET.get('substring') or ''
     if search_substring:
         src_filters[('msgid__icontains', 'msgstr__icontains')] = search_substring
         if src_filters['msgid__startswith'] == '__none.':
