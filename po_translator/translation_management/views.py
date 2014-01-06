@@ -20,6 +20,7 @@ from .utils import (get_message_list, import_po_file, save_same, site_admin,
                     get_all_permissions, user_has_perm, get_sections_info)
 from .forms import PoFileForm, MessageForm, ProjectForm, AddPermission
 from .decorators import render_to_html, project_aware, render_to_json
+from datetime import date, timedelta
 
 
 @render_to_html('translation_management/project_list.html')
@@ -82,10 +83,19 @@ def project(request, project, lang_id=None):
         if src_filters['msgid__startswith'] == '__none.':
             del src_filters['msgid__startswith']
 
+    time_filter_string = request.GET.get('time') or ''
+    time_filter = None
+    if time_filter_string:
+        if time_filter_string == '1day':
+            time_filter = date.today() - timedelta(days=1)
+
+        if time_filter_string == '3day':
+            time_filter = date.today() - timedelta(days=3)
+
     if translated_filter in ('True', 'False'):
         target_filters['is_translated'] = translated_filter == 'True'
 
-    messages = get_message_list(project.id, lang_id, target_filters=target_filters, src_filters=src_filters)
+    messages = get_message_list(project.id, lang_id, src_filters, target_filters, time_filter)
     sections, sub_sections = get_sections_info(project.id, lang_id, section_filters=section_filters)
     alter_languages = Language.objects.filter(projectlanguage__project_id=project).exclude(id=int(lang_id))
     context = {
@@ -95,6 +105,7 @@ def project(request, project, lang_id=None):
         'sub_sections': sub_sections,
         'search_substring': search_substring,
         'translated_filter': translated_filter,
+        'time_filter': time_filter_string,
         'cur_lang_name': Language.objects.get(id=lang_id).name,
         'cur_lang_id': int(lang_id),
         'source_lang': project_language.id,

@@ -33,6 +33,7 @@
                             <option value="{{ li }}" {% if cur_subsection == li %} selected {% endif %}>{{ li }}</option>
                         {% endfor %}
                     </select>
+
                     {% if cur_lang_id != source_lang %}
                         <select class="language span2" name='translated'>
                             <option value='False' {% ifequal translated_filter "False" %} selected {% endifequal %}>
@@ -46,8 +47,20 @@
                             </option>
                         </select>
                     {% endif %}
-                    <input type="text" class="span2" placeholder="Search" name="substring"
-                           value="{{ search_substring }}">
+
+                    <select class="language span2" name='time'>
+                        <option value='all' {% ifequal time_filter "all" %} selected {% endifequal %}>
+                            {% trans "For all time" %}
+                        </option>
+                        <option value='1day' {% ifequal time_filter "1day" %} selected {% endifequal %}>
+                            {% trans "Last 1 day" %}
+                        </option>
+                        <option value='3day' {% ifequal time_filter "3day" %} selected {% endifequal %}>
+                            {% trans "Last 3 days" %}
+                        </option>
+                    </select>
+
+                    <input type="text" class="span2" placeholder="Search" name="substring" value="{{ search_substring }}">
                     <button type="submit" class="btn">
                         <i class="icon-play"></i>
                     </button>

@@ -63,7 +63,7 @@ def _normalize_filters(filters):
     return reduce(lambda x, y: _spawn_query(*y) & x, filters.items(), Q())
 
 
-def get_message_list(project_id, lang_id, src_filters={}, target_filters={}):
+def get_message_list(project_id, lang_id, src_filters={}, target_filters={}, time_filter=None):
     lang_id = int(lang_id)
     project_language = Project.objects.get(id=project_id).lang.id
 
@@ -78,9 +78,14 @@ def get_message_list(project_id, lang_id, src_filters={}, target_filters={}):
     if target_predicate:
         new_query = new_query.filter(Q(lang=project_language) | Q(target_predicate))
 
-    res = SortedDict()
+    new_query = _update_message_query(new_query, project_id, lang_id)
 
-    new_query = _update_message_query(new_query, project_id, lang_id).order_by('msgid')
+    if time_filter:
+        new_query = new_query.filter(created_at__gte=time_filter)
+
+    new_query.order_by('msgid')
+
+    res = SortedDict()
 
     for data in new_query:
         msg_info = res.setdefault(data.msgid, {'msg_id': data.msgid})
@@ -95,6 +100,9 @@ def get_message_list(project_id, lang_id, src_filters={}, target_filters={}):
 
             if data.source_message:
                 msg_info.update({'msg_source': data.source_message.msgstr, 'id': data.id})
+
+        if data.lang_id == project_language:
+            msg_info.update({'msg_source': data.msgstr, 'id': data.id})
 
     messages = [i for i in res.values() if 'msg_target' in i]
     return messages
