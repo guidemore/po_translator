@@ -92,7 +92,8 @@ def add_other_languages_messages(sender, instance, created, **kwargs):
             message_set=instance.message_set,
             lang_id=lang.lang_id,
             msgid=instance.msgid,
-            defaults={'is_translated': False, 'msgstr': instance.msgstr})
+            defaults={'is_translated': False, 'msgstr': instance.msgstr, 'source_message': instance}
+        )
 
 
 signals.post_save.connect(add_other_languages_messages, sender=SetMessage)

@@ -96,44 +96,44 @@ def get_message_list(project_id, lang_id, src_filters={}, target_filters={}):
             if data.source_message:
                 msg_info.update({'msg_source': data.source_message.msgstr, 'id': data.id})
 
-        if data.lang_id == project_language:
-            msg_info.update({'msg_source': data.msgstr, 'id': data.id})
-
     messages = [i for i in res.values() if 'msg_target' in i]
     return messages
 
 
 def _create_new_set(project, lang_id, translations_data):
-    potr_set = Set.objects.create(project=project, name='%s:%s' % (project.id, datetime.now()))
+    translation_set = Set.objects.create(project=project, name='%s:%s' % (project.id, datetime.now()))
 
-    potr_import = Import.objects.create(message_set=potr_set, lang_id=lang_id)
+    translation_import = Import.objects.create(message_set=translation_set, lang_id=lang_id)
     for entry in translations_data:
-        ImportMessage.objects.create(poimport=potr_import, msgid=entry["msgid"], msgstr=entry["msgstr"])
+        ImportMessage.objects.create(poimport=translation_import, msgid=entry["msgid"], msgstr=entry["msgstr"])
         find = SetList.objects.filter(message_set__project_id=project.id, msgid=entry["msgid"]).exists()
-        SetList.objects.create(message_set=potr_set, msgid=entry["msgid"], msgstr=entry["msgstr"])
+        SetList.objects.create(message_set=translation_set, msgid=entry["msgid"], msgstr=entry["msgstr"])
         if not find:
-            SetMessage.objects.create(message_set=potr_set, lang_id=lang_id, msgid=entry["msgid"],
+            SetMessage.objects.create(message_set=translation_set, lang_id=lang_id, msgid=entry["msgid"],
                                       msgstr=entry["msgstr"], is_translated=True)
 
 
 def _import_new_lang(project, lang_id, translations_data):
-    potr_set = Set.objects.filter(project=project).order_by('-id')[0]
+    translation_set = Set.objects.filter(project=project).order_by('-id')[0]
 
-    potr_import = Import.objects.create(message_set=potr_set, lang_id=lang_id)
+    translation_import = Import.objects.create(message_set=translation_set, lang_id=lang_id)
     for entry in translations_data:
-        ImportMessage.objects.create(poimport=potr_import, msgid=entry["msgid"], msgstr=entry["msgstr"])
-        list_exist = SetList.objects.filter(message_set__project_id=project.id, message_set=potr_set.id, msgid=entry["msgid"]).exists()
-        if not list_exist:
+        ImportMessage.objects.create(poimport=translation_import, msgid=entry["msgid"], msgstr=entry["msgstr"])
+        find = SetList.objects.filter(message_set__project_id=project.id, message_set=translation_set.id, msgid=entry["msgid"]).exists()
+        if not find:
             continue
 
-        SetMessage.objects.create(message_set=potr_set, lang_id=lang_id, msgid=entry["msgid"], msgstr=entry["msgstr"],
-                                  is_translated=False)
+        messages = SetMessage.objects.all()
+        source_message = _update_message_query(messages, project.id, project.lang.id).get(msgid=entry["msgid"])
 
-    for msg in SetList.objects.filter(message_set__project_id=project.id, message_set=potr_set.id):
-        if SetMessage.objects.filter(message_set=potr_set.id, lang_id=lang_id, msgid=msg.msgid).exists():
+        SetMessage.objects.create(message_set=translation_set, lang_id=lang_id, msgid=entry["msgid"], msgstr=entry["msgstr"],
+                                  is_translated=False, source_message=source_message)
+
+    for msg in SetList.objects.filter(message_set__project_id=project.id, message_set=translation_set.id):
+        if SetMessage.objects.filter(message_set=translation_set.id, lang_id=lang_id, msgid=msg.msgid).exists():
             continue
 
-        SetMessage.objects.create(message_set=potr_set, lang_id=lang_id, msgid=msg.msgid, msgstr=msg.msgstr,
+        SetMessage.objects.create(message_set=translation_set, lang_id=lang_id, msgid=msg.msgid, msgstr=msg.msgstr,
                                   is_translated=False)
 
 
