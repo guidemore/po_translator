@@ -30,6 +30,7 @@ def _update_message_query(initial_query, project_id, lang_id):
         tables=[SetList._meta.db_table],
         where=['%s=%s' % (db_field(SetMessage, 'msgid'), db_field(SetList, 'msgid')),
                '%s=%s' % (db_field(SetList, 'message_set_id'), cur_set.id)])
+
     return new_query.filter(lang__in=[project_language, lang_id])
 
 
@@ -79,18 +80,22 @@ def get_message_list(project_id, lang_id, src_filters={}, target_filters={}):
 
     res = SortedDict()
 
-    new_query = _update_message_query(new_query, project_id, lang_id)
+    new_query = _update_message_query(new_query, project_id, lang_id).order_by('msgid')
 
-    for data in new_query.order_by('msgid'):
+    for data in new_query:
         msg_info = res.setdefault(data.msgid, {'msg_id': data.msgid})
         if data.lang_id == lang_id:
             msg_info.update(
                 {
                     'msg_target': data.msgstr,
                     'target_id': data.id,
-                    'is_translated': data.is_translated
+                    'is_translated': data.is_translated,
                 }
             )
+
+            if data.source_message:
+                msg_info.update({'msg_source': data.source_message.msgstr, 'id': data.id})
+
         if data.lang_id == project_language:
             msg_info.update({'msg_source': data.msgstr, 'id': data.id})
 

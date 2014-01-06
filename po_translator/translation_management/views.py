@@ -49,9 +49,9 @@ def project(request, project, lang_id=None):
     if not lang_id:
         return redirect('project', project_id=project.id, lang_id=project_language.id)
 
-    current_proj = ProjectLanguage.objects.get(project=project, lang=Language.objects.get(id=lang_id))
-    can_edit = site_admin(request.user) or request.user.has_perm('can_edit', current_proj)
-    can_read = can_edit or request.user.has_perm('can_read', current_proj)
+    current_project = ProjectLanguage.objects.get(project=project, lang=Language.objects.get(id=lang_id))
+    can_edit = site_admin(request.user) or request.user.has_perm('can_edit', current_project)
+    can_read = can_edit or request.user.has_perm('can_read', current_project)
     if not can_read:
         django_messages.error(request, _("You haven't permission for this language in this project"))
         return redirect('home')
@@ -60,6 +60,7 @@ def project(request, project, lang_id=None):
         redirect_response = _set_var_to_path(request, k, v)
         if redirect_response:
             return redirect_response
+
     translated_filter = request.GET.get('translated', 'all')
     target_filters = {}
     src_filters = {}
@@ -67,15 +68,17 @@ def project(request, project, lang_id=None):
 
     if 'cur_section' in request.GET:
         section_parts = ["%s." % request.GET.get('cur_section')] if request.GET.get('cur_section') else ['']
+
         if request.GET.get('cur_subsection'):
             section_parts.append("%s" % request.GET.get('cur_subsection'))
+
         src_filters['msgid__startswith'] = "".join(section_parts)
         if request.GET['cur_section']:
             section_filters['msgid__startswith'] = section_parts[0]
 
     search_substring = request.GET.get('substring') or ''
     if search_substring:
-        src_filters[('msgid__icontains', 'msgstr__icontains')] = search_substring
+        src_filters[('msgid__icontains', 'msgstr__icontains', 'source_message__msgstr__icontains')] = search_substring
         if src_filters['msgid__startswith'] == '__none.':
             del src_filters['msgid__startswith']
 

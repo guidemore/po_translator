@@ -39,7 +39,7 @@ class Project(models.Model):
 
 class ProjectLanguage(models.Model):
     lang = models.ForeignKey(Language)
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, related_name='languages')
     created_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -66,6 +66,7 @@ class Set(models.Model):
 class SetMessage(models.Model):
     message_set = models.ForeignKey(Set)
     lang = models.ForeignKey(Language)
+    source_message = models.ForeignKey('self', null=True, blank=True)
     msgid = models.CharField(max_length=100)
     msgstr = models.CharField(max_length=4000)
     is_translated = models.BooleanField()
@@ -86,7 +87,7 @@ def add_other_languages_messages(sender, instance, created, **kwargs):
     if instance.lang_id != project.lang_id:
         return
 
-    for lang in project.projectlanguage_set.exclude(lang=instance.lang_id):
+    for lang in project.languages.exclude(lang=instance.lang_id):
         SetMessage.objects.get_or_create(
             message_set=instance.message_set,
             lang_id=lang.lang_id,

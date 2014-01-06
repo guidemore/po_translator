@@ -504,16 +504,15 @@ class TestDisplayDevs(TestPoTranslate, TestUtils):
         path = os.path.join(PATH, 'data/django1.po')
         import_po_file(path, self.project.id, self.project_language.id)
         SetMessage.objects.filter(msgid='test.empty', lang=self.project.lang.id).update(msgstr='NonEmpty')
+
         response = client.get('/project/%s/export/%s/' % (self.project.id, new_lang.id))
         po = self._get_po_file_from_zip(response.content, new_lang.code)
-        all_messages = SetMessage.objects.filter(message_set__project_id=self.project.id, lang=self.project.lang.id)
         self.assertFalse(SetMessage.objects.get(msgid='test.empty', lang=new_lang.id).msgstr)
         self.assertEqual(dict((i.msgid, unicode(i.msgstr, 'utf8')) for i in po)['test.empty'], 'NonEmpty')
 
         SetMessage.objects.filter(msgid='test.empty').update(is_translated=True)
         response = client.get('/project/%s/export/%s/' % (self.project.id, new_lang.id))
         po = self._get_po_file_from_zip(response.content, new_lang.code)
-        all_messages = SetMessage.objects.filter(message_set__project_id=self.project.id, lang=self.project.lang.id)
         self.assertFalse(SetMessage.objects.get(msgid='test.empty', lang=new_lang.id).msgstr)
         self.assertFalse(dict((i.msgid, unicode(i.msgstr, 'utf8')) for i in po)['test.empty'])
 
