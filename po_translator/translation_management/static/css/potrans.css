@@ -32,3 +32,11 @@
 .source_table button {
     margin-right: 10px;
 }
+
+.section, .sel_subsection {
+    width: 175px;
+}
+
+.time {
+    width: 155px;
+}

@@ -288,7 +288,7 @@ $(function () {
                 $('#ajax-busy').hide();
                 $('option', $(".sel_subsection")).remove();
                 var newOption = document.createElement("OPTION");
-                newOption.text = "Show all";
+                newOption.text = "-- All Subsections --";
                 newOption.value = "";
                 $(".sel_subsection").append(newOption);
                 var result = jQuery.parseJSON(data);

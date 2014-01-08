@@ -20,15 +20,18 @@
                 <form class="navbar-form pull-left" action="" method="GET">
 
                     <select class="section span2" name='cur_section'>
-                        <option value="" {% if not cur_section %}
-                                selected {% endif %}>{% trans "Show All Sections" %}</option>
+                        <option value="" {% if not cur_section %} selected {% endif %}>
+                            {% trans "-- All Sections --" %}
+                        </option>
                         {% for li in sections %}
                             <option value="{{ li }}" {% if cur_section == li %} selected {% endif %}>{{ li }}</option>
                         {% endfor %}
                     </select>
 
                     <select class="sel_subsection span2" name='cur_subsection'>
-                        <option value="" {% if not cur_section %} selected {% endif %}>{% trans "Show all" %}</option>
+                        <option value="" {% if not cur_section %} selected {% endif %}>
+                            {% trans "-- All Subsections --" %}
+                        </option>
                         {% for li in sub_sections %}
                             <option value="{{ li }}" {% if cur_subsection == li %} selected {% endif %}>{{ li }}</option>
                         {% endfor %}
@@ -48,15 +51,15 @@
                         </select>
                     {% endif %}
 
-                    <select class="language span2" name='time'>
+                    <select class="time span2" name='time'>
                         <option value='all' {% ifequal time_filter "all" %} selected {% endifequal %}>
-                            {% trans "For all time" %}
+                            {% trans "Old and New" %}
                         </option>
                         <option value='1day' {% ifequal time_filter "1day" %} selected {% endifequal %}>
-                            {% trans "Last 1 day" %}
+                            {% trans "Added 1 day ago" %}
                         </option>
                         <option value='3day' {% ifequal time_filter "3day" %} selected {% endifequal %}>
-                            {% trans "Last 3 days" %}
+                            {% trans "Added 3 days ago" %}
                         </option>
                     </select>
 
