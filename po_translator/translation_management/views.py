@@ -83,14 +83,16 @@ def project(request, project, lang_id=None):
         if src_filters['msgid__startswith'] == '__none.':
             del src_filters['msgid__startswith']
 
-    time_filter_string = request.GET.get('time') or ''
+    time_filter_string = request.GET.get('day') or ''
     time_filter = None
-    if time_filter_string:
-        if time_filter_string == '1day':
-            time_filter = date.today() - timedelta(days=1)
+    if time_filter_string and time_filter_string != 'all':
+        time_delta = 366
+        try:
+            time_delta = int(time_filter_string)
+        except ValueError:
+            pass
 
-        if time_filter_string == '3day':
-            time_filter = date.today() - timedelta(days=3)
+        time_filter = date.today() - timedelta(days=time_delta)
 
     if translated_filter in ('True', 'False'):
         target_filters['is_translated'] = translated_filter == 'True'

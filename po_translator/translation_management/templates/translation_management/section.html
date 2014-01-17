@@ -51,15 +51,24 @@
                         </select>
                     {% endif %}
 
-                    <select class="time span2" name='time'>
+                    <select class="day span2" name='day'>
                         <option value='all' {% ifequal time_filter "all" %} selected {% endifequal %}>
                             {% trans "Old and New" %}
                         </option>
-                        <option value='1day' {% ifequal time_filter "1day" %} selected {% endifequal %}>
+                        <option value='1' {% ifequal time_filter "1" %} selected {% endifequal %}>
                             {% trans "Added 1 day ago" %}
                         </option>
-                        <option value='3day' {% ifequal time_filter "3day" %} selected {% endifequal %}>
+                        <option value='3' {% ifequal time_filter "3" %} selected {% endifequal %}>
                             {% trans "Added 3 days ago" %}
+                        </option>
+                        <option value='7' {% ifequal time_filter "7" %} selected {% endifequal %}>
+                            {% trans "Added 7 days ago" %}
+                        </option>
+                        <option value='15' {% ifequal time_filter "15" %} selected {% endifequal %}>
+                            {% trans "Added 15 days ago" %}
+                        </option>
+                        <option value='30' {% ifequal time_filter "30" %} selected {% endifequal %}>
+                            {% trans "Added 30 days ago" %}
                         </option>
                     </select>
 
